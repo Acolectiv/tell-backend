@@ -44,7 +44,6 @@ class UserManager {
     }
 
     async createUser(payload: IUserPayload) {
-        console.log(payload);
         if(!payload) return console.error(`[UserManager] -> Payload must be greater then 0.`);
 
         if((await this.findUserByUsername(payload.username)) != null) 

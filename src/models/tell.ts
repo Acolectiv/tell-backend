@@ -3,9 +3,10 @@ import ITell from "../interfaces/ITell";
 
 const TellSchema = new Schema<ITell>({
     author: { type: SchemaTypes.ObjectId, ref: "User" },
-    likes: Number,
-    dislikes: Number,
-    text: String
+    likes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
+    dislikes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
+    text: String,
+    createdAt: Number
 });
 
 model<ITell>("Tell", TellSchema);

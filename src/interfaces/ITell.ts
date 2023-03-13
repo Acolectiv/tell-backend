@@ -1,6 +1,9 @@
-export default interface ITell {
+import { Document } from "mongoose";
+
+export default interface ITell extends Document {
     author: any,
-    likes: number,
-    dislikes: number,
-    text: string
+    likes: Array<any>,
+    dislikes: Array<any>,
+    text: string,
+    createdAt: Number
 }
