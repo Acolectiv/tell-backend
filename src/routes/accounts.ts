@@ -35,7 +35,6 @@ router.post('/login', async (req: IUserRequest, res: Response) => {
         const userRes: UserResult = await UserManager.getInstance().loginUser({ username, password }) as any;
         if(userRes.result === 'error') return res.status(401).send({ success: false, error: userRes.msg });
 
-
         return res.send({ user: userRes.user, token: userRes.token });
     } catch(e) {
         console.log(e);

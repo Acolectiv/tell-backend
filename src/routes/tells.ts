@@ -120,5 +120,21 @@ router.get('/fetch/:tellId', auth, async (req: IUserRequest, res: Response) => {
     };
 });
 
+router.get('/fetchAll/:userId:limit', auth, async (req: IUserRequest, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const { limit } = req.body;
+
+        if(!userId) return res.status(404).send({ success: false, error: "noAuthor" });
+
+        const tellRes: TellResult = await TellManager.getInstance().fetchUserTells(req.userId, parseInt(limit));
+        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
+        else return res.status(200).json({ success: true, tell: tellRes.tell });
+    } catch(e) {
+        console.log(e);
+        res.status(500).send({ success: false, error: e });
+    };
+});
+
 const tellsRoute = router;
 export default tellsRoute;

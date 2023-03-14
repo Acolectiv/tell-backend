@@ -1,17 +1,11 @@
 import { model } from "mongoose";
-// @ts-ignore
-import jwt from "jsonwebtoken";
-// @ts-ignore
-import { compare } from "bcrypt";
 
-import IUserPayload from "../interfaces/IUserPayload";
 import TellResult from "../typings/TellResult";
-import IUser from "../interfaces/IUser";
 
 import removeArrayElementById from "../utils/removeArrayElementById";
 import elementExists from "../utils/elementExists";
 
-const User = model("User");
+import UserManager from "./UserManager";
 const Tell = model("Tell");
 
 class TellManager {
@@ -35,6 +29,14 @@ class TellManager {
         let tell = await Tell.findById(tellId).populate("likes").populate("dislikes");
         if(tell) return <TellResult>{ result: "success", tell };
         else return <TellResult>{ result: "error", msg: "noTellFound" };
+    }
+
+    async fetchUserTells(author: string, limit: number) {
+        if(!author) return <TellResult>{ result: "error", msg: "noAuthor" };
+
+        let tells = await Tell.find({ author }).limit(limit);
+
+        return <TellResult>{ result: "success", tell: tells };
     }
 
     async postTell(author: any, text: string) {
