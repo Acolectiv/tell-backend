@@ -1,8 +1,6 @@
 import express, { Request, Response } from "express";
 
 import IUserRequest from "../interfaces/IUserRequest";
-import IUser from "../interfaces/IUser";
-import UserResult from "../typings/UserResult";
 import TellResult from "../typings/TellResult";
 
 const router = express.Router();
