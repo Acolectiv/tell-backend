@@ -5,5 +5,6 @@ export default interface ITell extends Document {
     likes: Array<any>,
     dislikes: Array<any>,
     text: string,
-    createdAt: Number
+    createdAt: Number,
+    title: string
 }

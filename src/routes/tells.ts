@@ -14,14 +14,14 @@ import auth from "../middleware/auth";
 
 router.post('/create', auth, async (req: IUserRequest, res: Response) => {
     try {
-        const { text } = req.body;
+        const { text, title } = req.body;
 
-        if(!text) return res.status(404).send({ success: false, error: "noText" });
+        if(!text || !title) return res.status(404).send({ success: false, error: "noTextOrTitle" });
 
         let user = await UserManager.getInstance().fetchUser(req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
-        const tellRes: TellResult = await TellManager.getInstance().postTell(user, text);
+        const tellRes: TellResult = await TellManager.getInstance().postTell(user, text, title);
         if(tellRes.result == "success") return res.json({ success: true, tell: tellRes.tell });
         else return res.status(401).send({ success: false, error: tellRes.msg });
     } catch(e) {

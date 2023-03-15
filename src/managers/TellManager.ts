@@ -39,15 +39,16 @@ class TellManager {
         return <TellResult>{ result: "success", tell: tells };
     }
 
-    async postTell(author: any, text: string) {
-        if(!author || !text) return <TellResult>{ result: "error", msg: "noAuthorOrText" };
+    async postTell(author: any, text: string, title: string) {
+        if(!author || !text || !title) return <TellResult>{ result: "error", msg: "noAuthorOrTextOrTitle" };
 
         let tell = await Tell.create({
             author: author._id,
             text,
             likes: [],
             dislikes: [],
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            title
         });
 
         author.tells.push(tell._id);

@@ -6,7 +6,8 @@ const TellSchema = new Schema<ITell>({
     likes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     dislikes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     text: String,
-    createdAt: Number
+    createdAt: Number,
+    title: String
 });
 
 model<ITell>("Tell", TellSchema);
