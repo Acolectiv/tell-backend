@@ -4,6 +4,7 @@
     "dev": "ts-node-dev ."
   },
   "dependencies": {
+    "@types/ws": "^8.5.4",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
@@ -16,6 +17,7 @@
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",
     "mongoose": "^7.0.1",
+    "ws": "^8.13.0",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {

@@ -7,6 +7,7 @@ import { compare } from "bcrypt";
 import IUserPayload from "../interfaces/IUserPayload";
 import UserResult from "../typings/UserResult";
 import IUser from "../interfaces/IUser";
+import removeElementById from "../utils/removeElemntById";
 
 const User = model("User");
 
@@ -69,6 +70,51 @@ class UserManager {
         const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN);
 
         return <UserResult>{ result: "success", user, token };
+    }
+
+    async blockUser(blocker: string, blocked: string) {
+        let blockerUser = await UserManager.getInstance().fetchUser(blocker);
+        let blockedUser = await UserManager.getInstance().fetchUser(blocked);
+
+        let blockerParsed = JSON.parse(JSON.stringify(blockerUser));
+        let blockedParsed = JSON.parse(JSON.stringify(blockedUser));
+
+        if(!blockerUser || !blockedUser) return { result: "error", msg: "noBlockedOrBlocked" };
+
+        if(blockerUser._id.toString() == blockedUser._id.toString())
+            return { result: "error", msg: "blockingSelf" };
+
+        let blockerHasblocked = blockerParsed.blocked.indexOf(blockedParsed._id);
+        if(blockerHasblocked != -1) return { result: "error", msg: "alreadyBlocked" };
+
+        blockerUser.blocked.push(blockedUser._id);
+        await blockerUser.save();
+
+        return { result: "success", blocker: blockerUser._id, blocked: blockedUser._id };
+    }
+
+    async unblockUser(unblocker: string, unblocked: string) {
+        let unblockerUser = await UserManager.getInstance().fetchUser(unblocker);
+        let unblockedUser = await UserManager.getInstance().fetchUser(unblocked);
+
+        let unblockerParsed = JSON.parse(JSON.stringify(unblockerUser));
+        let unblockedParsed = JSON.parse(JSON.stringify(unblockedUser));
+
+        if(!unblockerUser || !unblockedUser) return { result: 'error', msg: "noUnblockerOrUnblocked" };
+
+        if(unblockerUser._id.toString() == unblockedUser._id.toString())
+            return { result: "error", msg: "unblockingSelf" };
+
+        let unblockerHasblocked = unblockerParsed.blocked.indexOf(unblockedParsed._id);
+
+        if(unblockerHasblocked == -1)
+            return { result: "error", msg: "alreadyUnblocked" };
+
+        unblockerUser.blocked = removeElementById(unblockerParsed.blocked, unblockedUser._id);
+
+        await unblockerUser.save();
+
+        return { result: "success", unblocker: unblockerUser._id, unblocked: unblockedUser._id };
     }
 }
 

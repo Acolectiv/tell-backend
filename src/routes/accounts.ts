@@ -7,6 +7,7 @@ import UserResult from "../typings/UserResult";
 const router = express.Router();
 
 import UserManager from "../managers/UserManager";
+import auth from "../middleware/auth";
 
 router.post('/create', async (req: IUserRequest, res: Response) => {
     try {
@@ -55,6 +56,24 @@ router.get('/fetch/:userId', async (req: IUserRequest, res: Response) => {
         console.log(e);
         res.status(500).send({ success: false, error: e });
     }
+});
+
+router.post('/block/:userId', auth, async (req: IUserRequest, res: Response) => {
+    let { userId } = req.params;
+    if(!userId) return res.status(401).send({ success: false, error: "no userId was provided" });
+
+    let { result, blocker, blocked, msg } = await UserManager.getInstance().blockUser(req.userId, userId);
+    if(result == "error") return res.status(400).json({ success: false, msg });
+    else return res.json({ success: true, blocker, blocked });
+});
+
+router.post('/unblock/:userId', auth, async (req: IUserRequest, res: Response) => {
+    let { userId } = req.params;
+    if(!userId) return res.status(401).send({ success: false, error: "no userId was provided" });
+
+    let { result, unblocker, unblocked, msg } = await UserManager.getInstance().unblockUser(req.userId, userId);
+    if(result == "error") return res.status(400).json({ success: false, msg });
+    else return res.json({ success: true, unblocker, unblocked });
 });
 
 const accountsRoute = router;

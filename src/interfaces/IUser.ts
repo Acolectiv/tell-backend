@@ -7,5 +7,6 @@ export default interface IUser extends Document {
     createdAt: Number,
     tells: Array<any>,
     following: Array<any>,
-    followers: Array<any>
+    followers: Array<any>,
+    blocked: Array<any>
 }
