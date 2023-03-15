@@ -1,14 +1,13 @@
 import { Schema, model, SchemaTypes } from "mongoose";
-import ITell from "../interfaces/ITell";
+import IComment from "../interfaces/IComment";
 
-const TellSchema = new Schema<ITell>({
+const CommentSchema = new Schema<IComment>({
     author: { type: SchemaTypes.ObjectId, ref: "User" },
+    parent: { type: SchemaTypes.ObjectId, ref: "Tell" },
     likes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     dislikes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     text: String,
-    createdAt: Number,
-    title: String,
-    comments: [{ type: SchemaTypes.ObjectId, ref: "Comment" }]
+    createdAt: Number
 });
 
-model<ITell>("Tell", TellSchema);
+model<IComment>("Comment", CommentSchema);

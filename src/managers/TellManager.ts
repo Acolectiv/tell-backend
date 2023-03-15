@@ -48,7 +48,8 @@ class TellManager {
             likes: [],
             dislikes: [],
             createdAt: Date.now(),
-            title
+            title,
+            comments: []
         });
 
         author.tells.push(tell._id);

@@ -1,11 +1,10 @@
 import { Document } from "mongoose";
 
-export default interface ITell extends Document {
+export default interface IComment extends Document {
     author: any,
+    parent: any,
     likes: Array<any>,
     dislikes: Array<any>,
     text: string,
-    createdAt: Number,
-    title: string,
-    comments: Array<any>
+    createdAt: Number
 }
