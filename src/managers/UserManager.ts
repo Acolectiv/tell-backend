@@ -41,7 +41,7 @@ class UserManager {
     }
 
     async fetchUser(id: string) {
-        return <IUser>(await User.findById(id).populate("tells"));
+        return <IUser>(await User.findById(id).populate("tells")).populate("notes");
     }
 
     async createUser(payload: IUserPayload) {

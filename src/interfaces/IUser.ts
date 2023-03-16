@@ -8,5 +8,6 @@ export default interface IUser extends Document {
     tells: Array<any>,
     following: Array<any>,
     followers: Array<any>,
-    blocked: Array<any>
+    blocked: Array<any>,
+    notes: any
 }

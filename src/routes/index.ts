@@ -5,6 +5,7 @@ import tellsRoute from "./tells";
 import followRoute from "./follow";
 import unfollowRoute from "./unfollow";
 import commentRoute from "./comments";
+import noteRoute from "./note";
 
 export const routes = express.Router();
 
@@ -13,3 +14,4 @@ routes.use("/tells", tellsRoute);
 routes.use("/follow", followRoute);
 routes.use("/unfollow", unfollowRoute);
 routes.use("/comments", commentRoute);
+routes.use("/note", noteRoute);

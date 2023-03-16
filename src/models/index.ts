@@ -1,5 +1,6 @@
 export = {
     users: require("./users"),
     tells: require("./tell"),
-    comment: require("./comment")
+    comment: require("./comment"),
+    usernote: require("./usernote")
 }
