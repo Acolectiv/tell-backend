@@ -6,6 +6,7 @@ import followRoute from "./follow";
 import unfollowRoute from "./unfollow";
 import commentRoute from "./comments";
 import noteRoute from "./note";
+import notificationRoute from "./notification";
 
 export const routes = express.Router();
 
@@ -15,3 +16,4 @@ routes.use("/follow", followRoute);
 routes.use("/unfollow", unfollowRoute);
 routes.use("/comments", commentRoute);
 routes.use("/note", noteRoute);
+routes.use("/notification", notificationRoute);
