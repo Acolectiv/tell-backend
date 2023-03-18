@@ -2,6 +2,7 @@ import { model } from "mongoose";
 
 import NotificationTypes from "../typings/NotificationTypes";
 import removeArrayElementById from "../utils/removeArrayElementById";
+import removeElementById from "../utils/removeElemntById";
 import UserManager from "./UserManager";
 
 const Notification = model("Notification");
@@ -23,12 +24,12 @@ class NotificationManager {
 
     async fetchNotification(notificationId: string) {
         let notification = await Notification.findById(notificationId);
-        if(notification === null) return { result: "error", msg: "noNotificationByAuthor" }
+        if(notification === null) return { result: "error", msg: "noNotificationByNotificationId" }
         else return { result: "success", notification };
     }
 
     async fetchNotifications(author: string) {
-        let notifications = await Notification.findOne({ author });
+        let notifications = await Notification.find({ author });
         if(notifications === null) return { result: "error", msg: "noNotificationByAuthor" }
         else return { result: "success", notifications };
     }
@@ -45,6 +46,7 @@ class NotificationManager {
             author,
             type,
             text,
+            seen: false,
             createdAt: Date.now()
         });
 
@@ -68,11 +70,22 @@ class NotificationManager {
 
         await Notification.deleteOne({ _id: notificationId });
 
-        let notificationsParsed = JSON.parse(JSON.stringify(notification));
+        let notificationsParsed = JSON.parse(JSON.stringify(user.notifications));
 
-        user.notifications = removeArrayElementById(notificationsParsed, notificationId);
+        user.notifications = removeElementById(notificationsParsed, notificationId);
 
         await user.save();
+
+        return { result: "success", notification };
+    }
+
+    async markAsRead(notificationId: string) {
+        let { result, msg, notification } = await this.fetchNotification(notificationId);
+        if(result == "error") return { result: "error", msg };
+
+        notification.seen = true;
+
+        await notification.save();
 
         return { result: "success", notification };
     }
