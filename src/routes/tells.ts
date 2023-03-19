@@ -16,7 +16,7 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
 
         if(!text || !title) return res.status(404).send({ success: false, error: "noTextOrTitle" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().postTell(user, text, title);
@@ -34,7 +34,7 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().deleteTell(user, tellId);
@@ -52,7 +52,7 @@ router.post('/like/:tellId', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().likeTell(user, tellId);
@@ -70,7 +70,7 @@ router.post('/dislike/:tellId', auth, async (req: IUserRequest, res: Response) =
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().dislikeTell(user, tellId);
@@ -88,7 +88,7 @@ router.post('/removeLikeOrDislike/:tellId', auth, async (req: IUserRequest, res:
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().removeLikeOrDislikeTell(user, tellId);
@@ -106,7 +106,7 @@ router.get('/fetch/:tellId', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId);
+        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
         if(!user) return res.status(401).send({ success: false, error: "noUser" });
 
         const tellRes: TellResult = await TellManager.getInstance().fetchTell(tellId);
@@ -132,6 +132,18 @@ router.get('/fetchAll/:userId:limit', auth, async (req: IUserRequest, res: Respo
         console.log(e);
         res.status(500).send({ success: false, error: e });
     };
+});
+
+router.get('/filter', async (req: IUserRequest, res: Response) => {
+    try {
+        let user = await TellManager.getInstance().filterTell(req.query.filter, req.query.sort);
+        if(!user) return res.status(401).send({ sucess: false, error: "noTell" });
+
+        return res.send({ success: true, user: user });
+    } catch (e) {
+        console.log(e);
+        res.status(500).send({ success: false, error: e });
+    }
 });
 
 const tellsRoute = router;

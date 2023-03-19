@@ -35,9 +35,9 @@ class NotificationManager {
     }
 
     async postNotification(author: string, type: string, text: string) {
-        let user = await UserManager.getInstance().fetchUser(author);
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(author, author);
         if(!type || !text) return { result: "error", msg: "noTypeOrText" };
-        if(user === null) return { result: "error", msg: "noUser" };
+        if(result == "error") return { result: "error", msg };
 
         if(!NotificationTypes.includes(type))
             return { result: "error", msg: "typeNotValid" };
@@ -58,9 +58,11 @@ class NotificationManager {
     }
 
     async deleteNotification(author: string, notificationId: string) {
-        let user = await UserManager.getInstance().fetchUser(author);
         if(!notificationId) return { result: "error", msg: "noNotificationId" };
-        if(user === null) return { result: "error", msg: "noUser" };
+
+        let { result: res1, msg: msg1, user } = await UserManager.getInstance().fetchUser(author, author);
+        if(res1 == "error") return { result: "error", msg: msg1 };
+
 
         let { result, msg, notification } = await this.fetchNotification(notificationId);
         if(result == "error") return { result: "error", msg };

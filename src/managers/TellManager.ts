@@ -127,6 +127,10 @@ class TellManager {
             return <TellResult>{ result: "error", msg: "noLike" };
         }
     }
+
+    async filterTell(filter: any, sort: any) {
+        return await Tell.find(filter).sort(sort);
+    }
 }
 
 export default TellManager;

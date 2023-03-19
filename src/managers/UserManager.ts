@@ -40,8 +40,14 @@ class UserManager {
         return User.findOne({ username });
     }
 
-    async fetchUser(id: string) {
-        return await User.findById(id).populate("tells").populate("notes");
+    async fetchUser(fetcher: string, id: string) {
+        let user = await User.findById(id).populate("tells").populate("notes");
+        if(!user) return { result: "error", msg: "noUser" };
+
+        if(user.blocked.includes(fetcher))
+            return { result: "error", msg: "fetcherBlockedByFetched" };
+
+        return { result: "success", user };
     }
 
     async createUser(payload: IUserPayload) {
@@ -73,8 +79,11 @@ class UserManager {
     }
 
     async blockUser(blocker: string, blocked: string) {
-        let blockerUser = await UserManager.getInstance().fetchUser(blocker);
-        let blockedUser = await UserManager.getInstance().fetchUser(blocked);
+        let { result: res1, msg: message1, user: blockerUser } = await UserManager.getInstance().fetchUser(blocker, blocked);
+        if(res1 == "error") return { result: "error", msg: message1 };
+
+        let { result: res, msg: message, user: blockedUser } = await UserManager.getInstance().fetchUser(blocked, blocked);
+        if(res == "error") return { result: "error", msg: message };
 
         let blockerParsed = JSON.parse(JSON.stringify(blockerUser));
         let blockedParsed = JSON.parse(JSON.stringify(blockedUser));
@@ -94,8 +103,11 @@ class UserManager {
     }
 
     async unblockUser(unblocker: string, unblocked: string) {
-        let unblockerUser = await UserManager.getInstance().fetchUser(unblocker);
-        let unblockedUser = await UserManager.getInstance().fetchUser(unblocked);
+        let { result: res1, msg: message1, user: unblockerUser } = await UserManager.getInstance().fetchUser(unblocker, unblocked);
+        if(res1 == "error") return { result: "error", msg: message1 };
+
+        let { result: res, msg: message, user: unblockedUser } = await UserManager.getInstance().fetchUser(unblocked, unblocked);
+        if(res == "error") return { result: "error", msg: message };
 
         let unblockerParsed = JSON.parse(JSON.stringify(unblockerUser));
         let unblockedParsed = JSON.parse(JSON.stringify(unblockedUser));
@@ -115,6 +127,10 @@ class UserManager {
         await unblockerUser.save();
 
         return { result: "success", unblocker: unblockerUser._id, unblocked: unblockedUser._id };
+    }
+
+    async filterUser(filter: any, sort: any) {
+        return await User.find(filter).sort(sort);
     }
 }
 

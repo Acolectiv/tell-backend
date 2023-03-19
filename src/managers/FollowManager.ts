@@ -17,8 +17,11 @@ class FollowManager {
     }
 
     async followUser(follower: string, followed: string) {
-        let followerUser = await UserManager.getInstance().fetchUser(follower);
-        let followedUser = await UserManager.getInstance().fetchUser(followed);
+        let { result: res1, msg: message1, user: followerUser } = await UserManager.getInstance().fetchUser(follower, followed);
+        if(res1 == "error") return { result: "error", msg: message1 };
+
+        let { result: res, msg: message, user: followedUser } = await UserManager.getInstance().fetchUser(follower, followed);
+        if(res == "error") return { result: "error", msg: message };
 
         let followerParsed = JSON.parse(JSON.stringify(followerUser));
         let followedParsed = JSON.parse(JSON.stringify(followedUser));
@@ -43,8 +46,11 @@ class FollowManager {
     }
 
     async unfollowUser(unfollower: string, unfollowed: string) {
-        let unfollowerUser = await UserManager.getInstance().fetchUser(unfollower);
-        let unfollowedUser = await UserManager.getInstance().fetchUser(unfollowed);
+        let { result: res1, msg: message1, user: unfollowerUser } = await UserManager.getInstance().fetchUser(unfollower, unfollowed);
+        if(res1 == "error") return { result: "error", msg: message1 };
+
+        let { result: res, msg: message, user: unfollowedUser } = await UserManager.getInstance().fetchUser(unfollowed, unfollowed);
+        if(res == "error") return { result: "error", msg: message };
 
         let unfollowerParsed = JSON.parse(JSON.stringify(unfollowerUser));
         let unfollowedParsed = JSON.parse(JSON.stringify(unfollowedUser));
@@ -68,16 +74,20 @@ class FollowManager {
         return { result: "success", unfollower: unfollowerUser._id, unfollowed: unfollowedUser._id };
     }
 
-    async fetchFollowers(userId: string) {
+    async fetchFollowers(fetcher: string, userId: string) {
         if(!userId) return { result: 'error', msg: "noUserId" };
 
-        return (await UserManager.getInstance().fetchUser(userId)).followers;
+        let { user } = await UserManager.getInstance().fetchUser(fetcher, userId);
+
+        return user.followers || [];
     }
 
-    async fetchFollowing(userId: string) {
+    async fetchFollowing(fetcher: string, userId: string) {
         if(!userId) return { result: 'error', msg: "noUserId" };
 
-        return (await UserManager.getInstance().fetchUser(userId)).following;
+        let { user } = await UserManager.getInstance().fetchUser(fetcher, userId);
+
+        return user.following || [];
     }
 };
 

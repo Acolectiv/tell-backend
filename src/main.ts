@@ -13,6 +13,9 @@ import xss from "xss-clean";
 import compression from "compression";
 import sanitize from "express-mongo-sanitize";
 
+// @ts-ignore
+import mongooseFilterQuery from "@sliit-foss/mongoose-filter-query";
+
 import config from "./config/server";
 
 let limiter = rateLimit({
@@ -30,6 +33,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(limiter);
 app.use(cors());
+
+app.use(mongooseFilterQuery);
 
 app.use("/api", routes);
 

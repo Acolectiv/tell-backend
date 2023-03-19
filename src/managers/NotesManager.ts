@@ -27,8 +27,8 @@ class NotesManager {
     }
 
     async postNote(author: string, text: string) {
-        let user = await UserManager.getInstance().fetchUser(author);
-        if(user === null) return { result: "error", msg: "noUser" };
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(author, author);
+        if(result == "error") return { result: "error", msg };
 
         if(!text) return { result: "error", msg: "noText" };
 
@@ -46,8 +46,8 @@ class NotesManager {
     }
 
     async deleteNote(author: string, noteId: string) {
-        let user = await UserManager.getInstance().fetchUser(author);
-        if(user === null) return { result: "error", msg: "noUser" };
+        let { result: res, msg: message, user } = await UserManager.getInstance().fetchUser(author, author);
+        if(res == "error") return { result: "error", msg: message };
 
         if(!noteId) return { result: "error", msg: "noNoteId" };
 
