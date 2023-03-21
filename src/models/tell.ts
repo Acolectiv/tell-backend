@@ -8,7 +8,8 @@ const TellSchema = new Schema<ITell>({
     text: String,
     createdAt: Number,
     title: String,
-    comments: [{ type: SchemaTypes.ObjectId, ref: "Comment" }]
+    comments: [{ type: SchemaTypes.ObjectId, ref: "Comment" }],
+    views: [{ type: SchemaTypes.ObjectId, ref: "User" }]
 });
 
 model<ITell>("Tell", TellSchema);

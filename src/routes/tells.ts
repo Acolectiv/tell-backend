@@ -16,8 +16,8 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
 
         if(!text || !title) return res.status(404).send({ success: false, error: "noTextOrTitle" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
         const tellRes: TellResult = await TellManager.getInstance().postTell(user, text, title);
         if(tellRes.result == "success") return res.json({ success: true, tell: tellRes.tell });
@@ -34,8 +34,8 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
         const tellRes: TellResult = await TellManager.getInstance().deleteTell(user, tellId);
         if(tellRes.result == "success") return res.json({ success: true, tells: tellRes.tell });
@@ -52,8 +52,8 @@ router.post('/like/:tellId', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
         const tellRes: TellResult = await TellManager.getInstance().likeTell(user, tellId);
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
@@ -70,8 +70,8 @@ router.post('/dislike/:tellId', auth, async (req: IUserRequest, res: Response) =
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
         const tellRes: TellResult = await TellManager.getInstance().dislikeTell(user, tellId);
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
@@ -88,8 +88,8 @@ router.post('/removeLikeOrDislike/:tellId', auth, async (req: IUserRequest, res:
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
         const tellRes: TellResult = await TellManager.getInstance().removeLikeOrDislikeTell(user, tellId);
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
@@ -106,10 +106,10 @@ router.get('/fetch/:tellId', auth, async (req: IUserRequest, res: Response) => {
 
         if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
 
-        let user = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(!user) return res.status(401).send({ success: false, error: "noUser" });
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
+        if(result == "error") return res.status(401).send({ success: false, msg });
 
-        const tellRes: TellResult = await TellManager.getInstance().fetchTell(tellId);
+        const tellRes: TellResult = await TellManager.getInstance().fetchTell(tellId, { viewer: req.userId });
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {

@@ -26,7 +26,7 @@ router.post('/', auth, async (req: IUserRequest, res: Response) => {
 
 router.get('/fetchFollowers', auth, async (req: IUserRequest, res: Response) => {
     try {
-        return res.send({ success: true, followers: await FollowManager.getInstance().fetchFollowers(req.userId) });
+        return res.send({ success: true, followers: await FollowManager.getInstance().fetchFollowers(req.userId, req.userId) });
     } catch(e) {
         console.log(e);
         res.status(500).send({ success: false, error: e });
@@ -35,7 +35,7 @@ router.get('/fetchFollowers', auth, async (req: IUserRequest, res: Response) => 
 
 router.get('/fetchFollowing', auth, async (req: IUserRequest, res: Response) => {
     try {
-        return res.send({ success: true, followers: await FollowManager.getInstance().fetchFollowing(req.userId) });
+        return res.send({ success: true, followers: await FollowManager.getInstance().fetchFollowing(req.userId, req.userId) });
     } catch(e) {
         console.log(e);
         res.status(500).send({ success: false, error: e });

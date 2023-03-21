@@ -79,7 +79,7 @@ class UserManager {
     }
 
     async blockUser(blocker: string, blocked: string) {
-        let { result: res1, msg: message1, user: blockerUser } = await UserManager.getInstance().fetchUser(blocker, blocked);
+        let { result: res1, msg: message1, user: blockerUser } = await UserManager.getInstance().fetchUser(blocker, blocker);
         if(res1 == "error") return { result: "error", msg: message1 };
 
         let { result: res, msg: message, user: blockedUser } = await UserManager.getInstance().fetchUser(blocked, blocked);
@@ -103,7 +103,7 @@ class UserManager {
     }
 
     async unblockUser(unblocker: string, unblocked: string) {
-        let { result: res1, msg: message1, user: unblockerUser } = await UserManager.getInstance().fetchUser(unblocker, unblocked);
+        let { result: res1, msg: message1, user: unblockerUser } = await UserManager.getInstance().fetchUser(unblocker, unblocker);
         if(res1 == "error") return { result: "error", msg: message1 };
 
         let { result: res, msg: message, user: unblockedUser } = await UserManager.getInstance().fetchUser(unblocked, unblocked);

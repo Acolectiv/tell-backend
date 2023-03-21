@@ -88,15 +88,16 @@ router.post('/removeLikeOrDislike', auth, async (req: IUserRequest, res: Respons
     };
 });
 
-router.get('/fetch', auth, async (req: IUserRequest, res: Response) => {
+router.get('/fetch/:commentId', auth, async (req: IUserRequest, res: Response) => {
     try {
-        const { commentId } = req.body;
+        const { commentId } = req.params;
 
         if(!commentId)
             return res.status(401).send({ success: false, error: "noCommentId" });
 
-        const comment = await CommentManager.getInstance().fetchComment(commentId);
-        return res.json({ success: true, comment });
+        const commentRes: CommentResult = await CommentManager.getInstance().fetchComment(commentId);
+        if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
+        else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
         console.log(e);
         res.status(500).send({ success: false, error: e });
@@ -105,13 +106,13 @@ router.get('/fetch', auth, async (req: IUserRequest, res: Response) => {
 
 router.get('/fetchAll', auth, async (req: IUserRequest, res: Response) => {
     try {
-        const { tellId, limit } = req.body;
-
-        if(!tellId)
+        if(!req.query.tellId)
             return res.status(401).send({ success: false, error: "noTellId" });
 
-        const comments = await CommentManager.getInstance().fetchComments(tellId, limit);
-        return res.json({ success: true, comments });
+        const { result, comments } = await CommentManager.getInstance().fetchComments(`${req.query.tellId}`, parseInt(`${req.query.limit}`) || 0);
+
+        if(result == "success") return res.json({ success: true, comments });
+        else return res.status(400).json({ success: false, comments: [] });
     } catch(e) {
         console.log(e);
         res.status(500).send({ success: false, error: e });

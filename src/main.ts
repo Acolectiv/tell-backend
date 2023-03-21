@@ -13,6 +13,8 @@ import xss from "xss-clean";
 import compression from "compression";
 import sanitize from "express-mongo-sanitize";
 
+import "./websocket/ws";
+
 // @ts-ignore
 import mongooseFilterQuery from "@sliit-foss/mongoose-filter-query";
 

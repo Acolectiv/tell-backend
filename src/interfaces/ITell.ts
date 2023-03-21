@@ -7,5 +7,6 @@ export default interface ITell extends Document {
     text: string,
     createdAt: Number,
     title: string,
-    comments: Array<any>
+    comments: Array<any>,
+    views: Array<any>
 }

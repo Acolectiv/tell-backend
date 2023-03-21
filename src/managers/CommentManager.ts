@@ -32,9 +32,9 @@ class CommentManager {
     }
 
     async fetchComments(tellId: string, limit: number) {
-        let tell = await Tell.findById({ _id: tellId }).limit(limit).populate("comments");
+        let comments = await Comment.find({ parent: tellId }).limit(limit);
 
-        return tell.comments;
+        return { result: "success", comments }
     }
 
     async postComment(tellId: string, payload: any) {
@@ -90,7 +90,7 @@ class CommentManager {
         else {
             commentRes.comment.likes.push(userId);
 
-            //await commentRes.comment.save();
+            await commentRes.comment.save();
 
             return <CommentResult>{ result: "success", comment: commentRes.comment };
         }

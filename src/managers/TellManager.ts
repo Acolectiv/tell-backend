@@ -23,10 +23,16 @@ class TellManager {
         return TellManager.instance;
     }
 
-    async fetchTell(tellId: string) {
+    async fetchTell(tellId: string, obj?: any) {
         if(!tellId) return <TellResult>{ result: "error", msg: "noTellId" };
 
         let tell = await Tell.findById(tellId).populate("likes").populate("dislikes");
+
+        if(obj.viewer) {
+            tell.views.push(obj.viewer);
+            tell.save();
+        }
+
         if(tell) return <TellResult>{ result: "success", tell };
         else return <TellResult>{ result: "error", msg: "noTellFound" };
     }

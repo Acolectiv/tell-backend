@@ -54,8 +54,6 @@ class NotesManager {
         let { result, msg, note } = await this.fetchNote(noteId);
         if(result == "error") return { result: "error", msg };
 
-        console.log(author, note)
-
         if(author != note.author.toString()) return { result: "error", msg: "noPermission" };
 
         await UserNote.deleteOne({ _id: noteId });
@@ -77,6 +75,7 @@ class NotesManager {
         if(author != note.author.toString()) return { result: "error", msg: "noPermission" };
 
         note.text = text;
+        note.updatedAt = Date.now();
 
         await note.save();
 

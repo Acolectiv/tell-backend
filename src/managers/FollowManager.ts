@@ -17,10 +17,10 @@ class FollowManager {
     }
 
     async followUser(follower: string, followed: string) {
-        let { result: res1, msg: message1, user: followerUser } = await UserManager.getInstance().fetchUser(follower, followed);
+        let { result: res1, msg: message1, user: followerUser } = await UserManager.getInstance().fetchUser(follower, follower);
         if(res1 == "error") return { result: "error", msg: message1 };
 
-        let { result: res, msg: message, user: followedUser } = await UserManager.getInstance().fetchUser(follower, followed);
+        let { result: res, msg: message, user: followedUser } = await UserManager.getInstance().fetchUser(followed, followed);
         if(res == "error") return { result: "error", msg: message };
 
         let followerParsed = JSON.parse(JSON.stringify(followerUser));
@@ -46,7 +46,7 @@ class FollowManager {
     }
 
     async unfollowUser(unfollower: string, unfollowed: string) {
-        let { result: res1, msg: message1, user: unfollowerUser } = await UserManager.getInstance().fetchUser(unfollower, unfollowed);
+        let { result: res1, msg: message1, user: unfollowerUser } = await UserManager.getInstance().fetchUser(unfollower, unfollower);
         if(res1 == "error") return { result: "error", msg: message1 };
 
         let { result: res, msg: message, user: unfollowedUser } = await UserManager.getInstance().fetchUser(unfollowed, unfollowed);
