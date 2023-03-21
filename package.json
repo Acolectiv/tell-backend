@@ -1,6 +1,6 @@
 {
   "main": "src/main.ts",
-  "version": "3.10.0",
+  "version": "3.11.0",
   "scripts": {
     "dev": "ts-node-dev .",
     "patch": "npm version patch --force",
