@@ -1,5 +1,6 @@
 {
   "main": "src/main.ts",
+  "version": "v1.5.1",
   "scripts": {
     "dev": "ts-node-dev ."
   },
