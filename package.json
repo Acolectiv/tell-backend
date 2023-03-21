@@ -1,8 +1,11 @@
 {
   "main": "src/main.ts",
-  "version": "1.5.2",
+  "version": "2.0.0",
   "scripts": {
-    "dev": "ts-node-dev ."
+    "dev": "ts-node-dev .",
+    "patch": "npm version patch --force",
+    "minor": "npm version minor --force",
+    "major": "npm version major --force"
   },
   "dependencies": {
     "@sliit-foss/mongoose-filter-query": "^1.1.1",
