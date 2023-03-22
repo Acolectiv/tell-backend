@@ -1,7 +1,9 @@
-// @ts-ignore
 import jwt from "jsonwebtoken";
 
-const auth = (req: any, res: any, next:any) => {
+import { Response, NextFunction } from "express";
+import IUserRequest from "../interfaces/IUserRequest";
+
+const auth = (req: IUserRequest, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
 
     if(!token) {
@@ -9,7 +11,7 @@ const auth = (req: any, res: any, next:any) => {
     };
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+        const decoded = jwt.verify(token, process.env.JWT_TOKEN) as any;
         req.userId = decoded.userId;
         next();
     } catch(e) {
