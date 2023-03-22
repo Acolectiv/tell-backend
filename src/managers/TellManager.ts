@@ -28,7 +28,7 @@ class TellManager {
 
         let tell = await Tell.findById(tellId).populate("likes").populate("dislikes");
 
-        if(obj.viewer) {
+        if(obj?.viewer !== undefined) {
             tell.views.push(obj.viewer);
             tell.save();
         }

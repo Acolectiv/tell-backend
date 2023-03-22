@@ -3,10 +3,12 @@
   "version": "1.5.2",
   "scripts": {
     "dev": "ts-node-dev .",
+    "start": "ts-node .",
     "patch": "npm version patch --force",
     "minor": "npm version minor --force",
     "major": "npm version major --force",
-    "test": "jest --coverage",
+    "cy": "cypress run",
+    "test": "start-server-and-test start http://localhost:3000 cy",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",
     "mongoose": "^7.0.1",
+    "start-server-and-test": "^2.0.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.5",
     "ws": "^8.13.0",
@@ -40,9 +43,12 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
+    "concurrently": "^7.6.0",
+    "cypress": "^12.8.1",
     "husky": "^8.0.3",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "wait-on": "^7.0.1"
   }
 }
