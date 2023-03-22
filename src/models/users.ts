@@ -16,7 +16,8 @@ const UserSchema = new Schema<IUser>({
     followers: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     blocked: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     notes: { type: SchemaTypes.ObjectId, ref: "UserNote" },
-    notifications: [{ type: SchemaTypes.ObjectId, ref: "Notification" }]
+    notifications: [{ type: SchemaTypes.ObjectId, ref: "Notification" }],
+    communities: [{ type: SchemaTypes.ObjectId, ref: "Community" }]
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

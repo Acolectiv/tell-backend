@@ -10,5 +10,6 @@ export default interface IUser extends Document {
     followers: Array<any>,
     blocked: Array<any>,
     notes: any,
-    notifications: Array<any>
+    notifications: Array<any>,
+    communities: Array<any>
 }

@@ -13,12 +13,10 @@ import xss from "xss-clean";
 import compression from "compression";
 import sanitize from "express-mongo-sanitize";
 
-import "./websocket/ws";
+// import "./websocket/ws";
 
 // @ts-ignore
 import mongooseFilterQuery from "@sliit-foss/mongoose-filter-query";
-
-import config from "./config/server";
 
 let limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
@@ -38,6 +36,10 @@ app.use(cors());
 
 app.use(mongooseFilterQuery);
 
+app.get("/", (req: any, res: any) => {
+    res.json({ success: true, msg: "online" });
+});
+
 app.use("/api", routes);
 
-app.listen(config.port, () => console.log(`[Express] -> Web Server running on port ${config.port}`));
+export default app;
