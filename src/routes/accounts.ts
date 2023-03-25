@@ -20,7 +20,6 @@ router.post('/create', async (req: IUserRequest, res: Response) => {
 
         return res.send({ user: userRes.user, token: userRes.token });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -37,7 +36,6 @@ router.post('/login', async (req: IUserRequest, res: Response) => {
 
         return res.send({ user: userRes.user, token: userRes.token });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     }
 });
@@ -51,28 +49,35 @@ router.get('/fetch/:userId', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(401).send({ sucess: false, error: msg });
 
         return res.send({ success: true, user });
-    } catch (e) {
-        console.log(e);
+    } catch (e) {     
         res.status(500).send({ success: false, error: e });
     }
 });
 
 router.post('/block/:userId', auth, async (req: IUserRequest, res: Response) => {
-    let { userId } = req.params;
-    if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
+    try {
+        let { userId } = req.params;
+        if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
 
-    let { result, blocker, blocked, msg } = await UserManager.getInstance().blockUser(req.userId, userId);
-    if(result == "error") return res.status(400).json({ success: false, msg });
-    else return res.json({ success: true, blocker, blocked });
+        let { result, blocker, blocked, msg } = await UserManager.getInstance().blockUser(req.userId, userId);
+        if(result == "error") return res.status(400).json({ success: false, msg });
+        else return res.json({ success: true, blocker, blocked });
+    } catch(e) {
+        res.status(500).send({ success: false, error: e });
+    }
 });
 
 router.post('/unblock/:userId', auth, async (req: IUserRequest, res: Response) => {
-    let { userId } = req.params;
-    if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
+    try {
+        let { userId } = req.params;
+        if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
 
-    let { result, unblocker, unblocked, msg } = await UserManager.getInstance().unblockUser(req.userId, userId);
-    if(result == "error") return res.status(400).json({ success: false, msg });
-    else return res.json({ success: true, unblocker, unblocked });
+        let { result, unblocker, unblocked, msg } = await UserManager.getInstance().unblockUser(req.userId, userId);
+        if(result == "error") return res.status(400).json({ success: false, msg });
+        else return res.json({ success: true, unblocker, unblocked });
+    } catch (e) {
+        res.status(500).send({ success: false, error: e });
+    }
 });
 
 router.get('/filter', async (req: IUserRequest, res: Response) => {
@@ -82,7 +87,6 @@ router.get('/filter', async (req: IUserRequest, res: Response) => {
 
         return res.send({ success: true, user: user });
     } catch (e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     }
 });

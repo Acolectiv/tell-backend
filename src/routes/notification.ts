@@ -20,7 +20,6 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else return res.json({ success: true, notification });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -36,7 +35,6 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else return res.json({ success: true, notification });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -52,7 +50,6 @@ router.post('/markAsRead', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else return res.json({ success: true, notification });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -68,7 +65,6 @@ router.get('/fetch/:notificationId', auth, async (req: IUserRequest, res: Respon
         if(result == "error") return res.status(400).json({ success: false, msg });
         else return res.json({ success: true, notification });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -84,7 +80,6 @@ router.get('/fetchAll/:userId', auth, async (req: IUserRequest, res: Response) =
         if(result == "error") return res.status(400).json({ success: false, msg });
         else return res.json({ success: true, notifications });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });

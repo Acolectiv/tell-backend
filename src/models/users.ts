@@ -7,7 +7,10 @@ import IUser from "../interfaces/IUser";
 import { hash } from "bcrypt";
 
 const UserSchema = new Schema<IUser>({
-    username: String,
+    username: {
+        type: String,
+        maxlength: 64
+    },
     email: String,
     password: String,
     createdAt: Number,

@@ -19,7 +19,6 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -35,7 +34,6 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comments: commentRes.comments });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -51,7 +49,6 @@ router.post('/like', auth, async (req: IUserRequest, res: Response) => {
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -67,7 +64,6 @@ router.post('/dislike', auth, async (req: IUserRequest, res: Response) => {
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -83,7 +79,6 @@ router.post('/removeLikeOrDislike', auth, async (req: IUserRequest, res: Respons
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -99,7 +94,6 @@ router.get('/fetch/:commentId', auth, async (req: IUserRequest, res: Response) =
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
         else res.json({ success: true, comment: commentRes.comment });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -114,7 +108,6 @@ router.get('/fetchAll', auth, async (req: IUserRequest, res: Response) => {
         if(result == "success") return res.json({ success: true, comments });
         else return res.status(400).json({ success: false, comments: [] });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });

@@ -6,7 +6,10 @@ const CommentSchema = new Schema<IComment>({
     parent: { type: SchemaTypes.ObjectId, ref: "Tell" },
     likes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     dislikes: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    text: String,
+    text: {
+        type: String,
+        maxlength: 1000
+    },
     createdAt: Number
 });
 

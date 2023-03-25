@@ -11,6 +11,10 @@ import removeElementById from "../utils/removeElemntById";
 
 const User = model("User");
 
+function hasWhiteSpace(s: string) {
+    return s.indexOf(' ') >= 0;
+}
+
 class UserManager {
     private static instance: UserManager;
 
@@ -54,7 +58,10 @@ class UserManager {
         if(!payload) return console.error(`[UserManager] -> Payload must be greater then 0.`);
 
         if((await this.findUserByUsername(payload.username)) != null) 
-            return <UserResult>{ result: "error", msg: "user already exists" }
+            return <UserResult>{ result: "error", msg: "user already exists" };
+
+        if(hasWhiteSpace(payload.username)) return <UserResult>{ result: "error", msg: "noWhiteSpacesAllowed" };
+        if(payload.username.length > 64) return <UserResult>{ result: "error", msg: "usernameOver64Chars" }
 
         const user = new User(payload);
         await user.save();

@@ -19,7 +19,6 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else res.json({ success: true, note });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -35,7 +34,6 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else res.json({ success: true, note });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -51,7 +49,6 @@ router.get('/fetch/:noteId', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else res.json({ success: true, note });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -67,7 +64,6 @@ router.post('/edit', auth, async (req: IUserRequest, res: Response) => {
         if(result == "error") return res.status(400).json({ success: false, msg });
         else res.json({ success: true, note });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });

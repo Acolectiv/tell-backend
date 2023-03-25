@@ -48,6 +48,9 @@ class TellManager {
     async postTell(author: any, text: string, title: string) {
         if(!author || !text || !title) return <TellResult>{ result: "error", msg: "noAuthorOrTextOrTitle" };
 
+        if(text.trim().length > 2000) return <TellResult>{ result: "error", msg: "textOver2000" };
+        if(title.trim().length > 200) return <TellResult>{ result: "error", msg: "titleOver200" };
+
         let tell = await Tell.create({
             author: author._id,
             text,

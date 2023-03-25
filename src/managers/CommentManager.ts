@@ -43,6 +43,8 @@ class CommentManager {
 
         if(!payload) return <CommentResult>{ result: "error", msg: "noPayload" };
 
+        if(payload.text.trim().length > 1000) return <CommentResult>{ result: "error", msg: "payloadTextOver1000" };
+
         let comment = await Comment.create({
             author: payload.author,
             parent: tellId,

@@ -23,7 +23,6 @@ router.post('/create', auth, async (req: IUserRequest, res: Response) => {
         if(tellRes.result == "success") return res.json({ success: true, tell: tellRes.tell });
         else return res.status(401).send({ success: false, error: tellRes.msg });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -41,7 +40,6 @@ router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
         if(tellRes.result == "success") return res.json({ success: true, tells: tellRes.tell });
         else return res.status(401).send({ success: false, error: tellRes.msg });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -59,7 +57,6 @@ router.post('/like/:tellId', auth, async (req: IUserRequest, res: Response) => {
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -77,7 +74,6 @@ router.post('/dislike/:tellId', auth, async (req: IUserRequest, res: Response) =
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -95,7 +91,6 @@ router.post('/removeLikeOrDislike/:tellId', auth, async (req: IUserRequest, res:
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -113,7 +108,6 @@ router.get('/fetch/:tellId', auth, async (req: IUserRequest, res: Response) => {
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -129,7 +123,6 @@ router.get('/fetchAll/:userId:limit', auth, async (req: IUserRequest, res: Respo
         if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
         else return res.status(200).json({ success: true, tell: tellRes.tell });
     } catch(e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     };
 });
@@ -141,7 +134,6 @@ router.get('/filter', async (req: IUserRequest, res: Response) => {
 
         return res.send({ success: true, user: user });
     } catch (e) {
-        console.log(e);
         res.status(500).send({ success: false, error: e });
     }
 });

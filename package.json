@@ -12,6 +12,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@cypherdb/cachefactory": "^1.0.1",
     "@sliit-foss/mongoose-filter-query": "^1.1.1",
     "@types/jest": "^29.5.0",
     "@types/supertest": "^2.0.12",
