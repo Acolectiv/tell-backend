@@ -11,5 +11,7 @@ export default interface IUser extends Document {
     blocked: Array<any>,
     notes: any,
     notifications: Array<any>,
-    communities: Array<any>
+    communities: Array<any>,
+    isOwner: boolean,
+    permissions: object
 }

@@ -6,9 +6,9 @@ let date = Date.now();
 describe('accounts', () => {
   it('creates a user', () => {
     cy.request('POST', 'http://localhost:3000/api/accounts/create', {
-      username: date,
-      password: date,
-      email: date
+      username: `${date}`,
+      password: `${date}`,
+      email: `${date}`
     }).then(res => {
       expect(res.body).to.have.property('user');
     })
@@ -33,8 +33,8 @@ describe('accounts', () => {
         "Authorization": window.userToken
       },
       body: {
-        text: date,
-        title: date
+        text: `${date}`,
+        title: `${date}`
       }
     }).then(res => {
       expect(res.body).to.have.property('tell');

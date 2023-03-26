@@ -20,7 +20,15 @@ const UserSchema = new Schema<IUser>({
     blocked: [{ type: SchemaTypes.ObjectId, ref: "User" }],
     notes: { type: SchemaTypes.ObjectId, ref: "UserNote" },
     notifications: [{ type: SchemaTypes.ObjectId, ref: "Notification" }],
-    communities: [{ type: SchemaTypes.ObjectId, ref: "Community" }]
+    communities: [{ type: SchemaTypes.ObjectId, ref: "Community" }],
+    isOwner: { type: Boolean, default: false },
+    permissions: {
+        banUser: { type: Boolean, default: false },
+        deleteTell: { type: Boolean, default: false },
+        seeUsers: { type: Boolean, default: false },
+        adminPanel: { type: Boolean, default: false },
+        seePastSanctions: { type: Boolean, default: false }
+    }
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

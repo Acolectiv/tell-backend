@@ -63,6 +63,11 @@ class UserManager {
         if(hasWhiteSpace(payload.username)) return <UserResult>{ result: "error", msg: "noWhiteSpacesAllowed" };
         if(payload.username.length > 64) return <UserResult>{ result: "error", msg: "usernameOver64Chars" }
 
+        if(payload.permissions || payload.isOwner) {
+            delete payload.permissions;
+            delete payload.isOwner;
+        }
+
         const user = new User(payload);
         await user.save();
 
@@ -80,7 +85,7 @@ class UserManager {
         const isPasswordValid = await compare(payload.password, user.password);
         if(!isPasswordValid) return <UserResult>{ result: "error", msg: "incorrect password" };
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_TOKEN);
+        const token = jwt.sign({ userId: user._id, isOwner: user.isOwner, permissions: user.permissions }, process.env.JWT_TOKEN);
 
         return <UserResult>{ result: "success", user, token };
     }
@@ -136,8 +141,34 @@ class UserManager {
         return { result: "success", unblocker: unblockerUser._id, unblocked: unblockedUser._id };
     }
 
-    async filterUser(filter: any, sort: any) {
+    async filterUser(filter: any, sort: any): Promise<any> {
         return await User.find(filter).sort(sort);
+    }
+
+    async getUserPermissions(userId: string): Promise<object> {
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
+        if(result == "error") return { result: "error", msg };
+
+        return { ...user.isOwner, ...user.permissions };
+    }
+
+    async checkUserPermissions(userId: string, perms: string | Array<string>): Promise<boolean | object> {
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
+        if(result == "error") return { result: "error", msg };
+
+        if(typeof perms == "string") {
+            if(user.isOwner) return true;
+            if(user.permissions[perms] === true) return true;
+
+            return false;
+        } else {
+            if(user.isOwner) return true;
+            perms.forEach(perm => {
+                if(user.permissions[perm] === false) return false;
+            });
+
+            return true;
+        }
     }
 }
 
