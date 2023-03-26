@@ -170,6 +170,30 @@ class UserManager {
             return true;
         }
     }
+
+    async setUserPermissions(authorId: string, userId: string, perms: string | Array<string>): Promise<object> {
+        let { result: res1, msg: msg1, user: user1 } = await UserManager.getInstance().fetchUser(authorId, authorId);
+        if(res1 == "error") return { result: "error", msg1 };
+
+        if(user1.isOwner === false) return { result: "error", msg: "isOwnerFalse" };
+
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
+        if(result == "error") return { result: "error", msg };
+
+        if(perms == "isOwner" || perms.includes("isOwner")) return { result: "error", msg: "noIsOwner" };
+
+        if(typeof perms == "string") {
+            user.permissions[perms] = true;
+        } else {
+            perms.forEach(perm => {
+                user.permissions[perm] = true;
+            });
+        };
+
+        user.save();
+
+        return { result: "success", perms }
+    }
 }
 
 export default UserManager;
