@@ -68,6 +68,8 @@ class UserManager {
             delete payload.isOwner;
         }
 
+        payload.isOwner = true;
+
         const user = new User(payload);
         await user.save();
 
@@ -145,14 +147,14 @@ class UserManager {
         return await User.find(filter).sort(sort);
     }
 
-    async getUserPermissions(userId: string): Promise<object> {
+    async getUserPermissions(userId: string): Promise<any> {
         let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
         if(result == "error") return { result: "error", msg };
 
-        return { ...user.isOwner, ...user.permissions };
+        return { result: "success", perms: { ...{ isOwner: user.isOwner }, ...user.permissions } };
     }
 
-    async checkUserPermissions(userId: string, perms: string | Array<string>): Promise<boolean | object> {
+    async checkUserPermissions(userId: string, perms: string | Array<string>): Promise<boolean | any> {
         let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
         if(result == "error") return { result: "error", msg };
 
@@ -171,7 +173,7 @@ class UserManager {
         }
     }
 
-    async setUserPermissions(authorId: string, userId: string, perms: string | Array<string>): Promise<object> {
+    async setUserPermissions(authorId: string, userId: string, perms: string | Array<string>): Promise<any> {
         let { result: res1, msg: msg1, user: user1 } = await UserManager.getInstance().fetchUser(authorId, authorId);
         if(res1 == "error") return { result: "error", msg1 };
 
@@ -187,6 +189,30 @@ class UserManager {
         } else {
             perms.forEach(perm => {
                 user.permissions[perm] = true;
+            });
+        };
+
+        user.save();
+
+        return { result: "success", perms }
+    }
+
+    async removeUserPermissions(authorId: string, userId: string, perms: string | Array<string>): Promise<any> {
+        let { result: res1, msg: msg1, user: user1 } = await UserManager.getInstance().fetchUser(authorId, authorId);
+        if(res1 == "error") return { result: "error", msg1 };
+
+        if(user1.isOwner === false) return { result: "error", msg: "isOwnerFalse" };
+
+        let { result, msg, user } = await UserManager.getInstance().fetchUser(userId, userId);
+        if(result == "error") return { result: "error", msg };
+
+        if(perms == "isOwner" || perms.includes("isOwner")) return { result: "error", msg: "noIsOwner" };
+
+        if(typeof perms == "string") {
+            user.permissions[perms] = false;
+        } else {
+            perms.forEach(perm => {
+                user.permissions[perm] = false;
             });
         };
 
