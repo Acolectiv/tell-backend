@@ -45,7 +45,7 @@ class TellManager {
         return <TellResult>{ result: "success", tell: tells };
     }
 
-    async postTell(author: any, text: string, title: string) {
+    async postTell(author: any, text: string, title: string, where?: string) {
         if(!author || !text || !title) return <TellResult>{ result: "error", msg: "noAuthorOrTextOrTitle" };
 
         if(text.trim().length > 2000) return <TellResult>{ result: "error", msg: "textOver2000" };
@@ -58,7 +58,8 @@ class TellManager {
             dislikes: [],
             createdAt: Date.now(),
             title,
-            comments: []
+            comments: [],
+            in: where || "general"
         });
 
         author.tells.push(tell._id);

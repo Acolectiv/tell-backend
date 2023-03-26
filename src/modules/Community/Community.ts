@@ -1,8 +1,10 @@
 import { model } from "mongoose";
-import UserManager from "../managers/UserManager";
+import UserManager from "../../managers/UserManager";
 const Community = model("Community");
 
-import CommunityResult from "../typings/CommunityResult";
+import CommunityResult from "../../typings/CommunityResult";
+
+import _postTellInCommunity from "./actions/postTellInCommunity";
 
 class CommunityModule {
     private static instance: CommunityModule;
@@ -61,4 +63,12 @@ class CommunityModule {
 
         return <CommunityResult>{ result: "success", community };
     }
+
+    async postTellInCommunity(tellPayload: any, communityId: string) {
+        let { tell } = await _postTellInCommunity(tellPayload, communityId);
+
+        return { result: "success", tell };
+    }
 }
+
+export default CommunityModule;

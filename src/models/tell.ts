@@ -15,7 +15,8 @@ const TellSchema = new Schema<ITell>({
         maxlength: 200
     },
     comments: [{ type: SchemaTypes.ObjectId, ref: "Comment" }],
-    views: [{ type: SchemaTypes.ObjectId, ref: "User" }]
+    views: [{ type: SchemaTypes.ObjectId, ref: "User" }],
+    in: { type: String, default: "general" }
 });
 
 model<ITell>("Tell", TellSchema);

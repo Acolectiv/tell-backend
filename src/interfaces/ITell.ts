@@ -8,5 +8,6 @@ export default interface ITell extends Document {
     createdAt: Number,
     title: string,
     comments: Array<any>,
-    views: Array<any>
+    views: Array<any>,
+    in: string
 }
