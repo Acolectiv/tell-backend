@@ -8,6 +8,7 @@ import commentRoute from "./comments";
 import noteRoute from "./note";
 import notificationRoute from "./notification";
 import permissionsRoute from "./permissions";
+import communityRoute from "./community";
 
 export const routes = express.Router();
 
@@ -19,3 +20,4 @@ routes.use("/comments", commentRoute);
 routes.use("/note", noteRoute);
 routes.use("/notification", notificationRoute);
 routes.use("/permissions", permissionsRoute);
+routes.use("/community", communityRoute);

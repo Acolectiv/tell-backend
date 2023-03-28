@@ -68,8 +68,6 @@ class UserManager {
             delete payload.isOwner;
         }
 
-        payload.isOwner = true;
-
         const user = new User(payload);
         await user.save();
 

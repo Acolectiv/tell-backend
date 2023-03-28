@@ -3,5 +3,6 @@ export = {
     tells: require("./tell"),
     comment: require("./comment"),
     usernote: require("./usernote"),
-    notification: require("./notification")
+    notification: require("./notification"),
+    community: require("./community")
 }
