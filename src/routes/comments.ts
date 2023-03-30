@@ -8,12 +8,17 @@ const router = express.Router();
 
 import CommentManager from "../managers/CommentManager";
 
+import SocketManager from "../websocket/ws";
+let soc = new SocketManager();
+
 router.post('/create', auth, async (req: IUserRequest, res: Response) => {
     try {
         const { tellId, text } = req.body;
 
         if(!tellId || !text)
             return res.status(401).send({ success: false, error: "noTellIdOrText" });
+
+        soc.sendToClient(req.userId, { hi: "there" })
 
         const commentRes: CommentResult = await CommentManager.getInstance().postComment(tellId, { text, author: req.userId });
         if(commentRes.result == "error") return res.status(400).json({ success: false, msg: commentRes.msg });
