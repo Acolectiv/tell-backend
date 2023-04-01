@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import "./config/db";
 
-import express from "express";
+import express, { Response, Request } from "express";
 import { routes } from "./routes";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -39,7 +39,7 @@ app.use(cors());
 
 app.use(mongooseFilterQuery);
 
-app.get("/", (req: any, res: any) => {
+app.get("/", (req: Request, res: Response) => {
     res.json({ success: true, msg: "online" });
 });
 
