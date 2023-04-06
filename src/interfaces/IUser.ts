@@ -13,5 +13,6 @@ export default interface IUser extends Document {
     notifications: Array<any>,
     communities: Array<any>,
     isOwner: boolean,
-    permissions: object
+    permissions: object,
+    gcs: Array<any>
 }

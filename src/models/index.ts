@@ -4,5 +4,6 @@ export = {
     comment: require("./comment"),
     usernote: require("./usernote"),
     notification: require("./notification"),
-    community: require("./community")
+    community: require("./community"),
+    groupchat: require("./groupchat")
 }
