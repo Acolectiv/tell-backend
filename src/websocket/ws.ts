@@ -40,6 +40,15 @@ class SocketManager {
         }
     }
 
+    getClient(clientId: string) {
+        try {
+            let client = SocketManager.clients.get(clientId);
+            return client;
+        } catch(e) {
+            return "error";
+        }
+    }
+
     _listenToEvents() {
         if(!SocketManager.ws) return;
 
@@ -57,7 +66,7 @@ class SocketManager {
 
             conn.on('message', (d: any) => {
                 let parsed = JSON.parse(d.toString());
-                if(parsed.op == 12) messageCreate(parsed.d);
+                if(parsed.op == 12) messageCreate(this.getClient(parsed.d.author), parsed.d);
             });
 
             //this.registerEvents();

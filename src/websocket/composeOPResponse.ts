@@ -2,8 +2,10 @@ import { WsOPCodes } from "../constants";
 
 import IOPResponse from "../interfaces/IOPResponse";
 
-const composeOPResponse = (op: WsOPCodes, d?: string | null, t?: string | null) => {
+export default function composeOPResponse(op: WsOPCodes, d?: object | null, t?: string) {
     if(!op) return;
+
+    console.log(d)
 
     if(!d) d = null;
     if(!t) t = null;
@@ -16,5 +18,3 @@ const composeOPResponse = (op: WsOPCodes, d?: string | null, t?: string | null) 
 
     return JSON.stringify(res);
 }
-
-export default composeOPResponse;

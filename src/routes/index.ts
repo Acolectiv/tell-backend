@@ -9,6 +9,7 @@ import noteRoute from "./note";
 import notificationRoute from "./notification";
 import permissionsRoute from "./permissions";
 import communityRoute from "./community";
+import groupChatRoute from "./groupchat";
 
 export const routes = express.Router();
 
@@ -21,3 +22,4 @@ routes.use("/note", noteRoute);
 routes.use("/notification", notificationRoute);
 routes.use("/permissions", permissionsRoute);
 routes.use("/community", communityRoute);
+routes.use("/groupchat", groupChatRoute);

@@ -15,7 +15,7 @@ const GroupChatSchema = new Schema<IGroupChat>({
     },
     messages: [{
         text: { type: String, default: "" },
-        createdAt: { type: Number, default: Date.now() },
+        createdAt: { type: Number, default: 0 },
         sentBy: { type: SchemaTypes.ObjectId, ref: "User" }
     }]
 });
