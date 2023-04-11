@@ -10,6 +10,7 @@ import notificationRoute from "./notification";
 import permissionsRoute from "./permissions";
 import communityRoute from "./community";
 import groupChatRoute from "./groupchat";
+import algorithmRoute from "./algorithm";
 
 export const routes = express.Router();
 
@@ -23,3 +24,4 @@ routes.use("/notification", notificationRoute);
 routes.use("/permissions", permissionsRoute);
 routes.use("/community", communityRoute);
 routes.use("/groupchat", groupChatRoute);
+routes.use("/algorithm", algorithmRoute);

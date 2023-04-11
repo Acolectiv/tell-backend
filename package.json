@@ -32,6 +32,7 @@
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",
     "mongoose": "^7.0.1",
+    "prom-client": "^14.2.0",
     "start-server-and-test": "^2.0.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.5",
