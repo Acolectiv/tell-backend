@@ -16,6 +16,8 @@ import sanitize from "express-mongo-sanitize";
 import SocketManager from "./websocket/ws";
 let soc = new SocketManager();
 
+import Algorithm from "./algorithm/Algorithm";
+
 soc.createServer();
 
 // @ts-ignore
@@ -44,5 +46,11 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api", routes);
+
+let par = "A single chemical reaction between hydrogen and oxygen generates energy, which can be used to power a car -- producing only water, not exhaust fumes. With a new national commitment, our scientists and engineers will overcome obstacles to taking these cars from laboratory to showroom, so that the first car driven by a child born today could be powered by hydrogen, and pollution-free. ";
+
+let alg = Algorithm.getInstance();
+
+console.log(alg.getTopic(par));
 
 export default app;

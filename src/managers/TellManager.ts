@@ -5,7 +5,7 @@ import TellResult from "../typings/TellResult";
 import removeArrayElementById from "../utils/removeArrayElementById";
 import elementExists from "../utils/elementExists";
 
-import UserManager from "./UserManager";
+import Algorithm from "../algorithm/Algorithm";
 const Tell = model("Tell");
 
 class TellManager {
@@ -59,7 +59,8 @@ class TellManager {
             createdAt: Date.now(),
             title,
             comments: [],
-            in: where || "general"
+            in: where || "general",
+            topicText: Algorithm.getInstance().getTopic(text)
         });
 
         author.tells.push(tell._id);

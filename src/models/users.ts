@@ -29,7 +29,8 @@ const UserSchema = new Schema<IUser>({
         adminPanel: { type: Boolean, default: false },
         seePastSanctions: { type: Boolean, default: false }
     },
-    gcs: [{ type: SchemaTypes.ObjectId, ref: "GroupChat" }]
+    gcs: [{ type: SchemaTypes.ObjectId, ref: "GroupChat" }],
+    interests: [[ String ]]
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

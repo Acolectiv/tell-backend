@@ -16,7 +16,8 @@ const TellSchema = new Schema<ITell>({
     },
     comments: [{ type: SchemaTypes.ObjectId, ref: "Comment" }],
     views: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    in: { type: String, default: "general" }
+    in: { type: String, default: "general" },
+    topicText: { type: String, default: "default" }
 });
 
 model<ITell>("Tell", TellSchema);

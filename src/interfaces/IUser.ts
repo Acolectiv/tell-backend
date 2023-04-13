@@ -14,5 +14,6 @@ export default interface IUser extends Document {
     communities: Array<any>,
     isOwner: boolean,
     permissions: object,
-    gcs: Array<any>
+    gcs: Array<any>,
+    interests: Array<any>
 }

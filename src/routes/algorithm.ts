@@ -12,7 +12,7 @@ router.get('/fetchTells', auth, async (req: IUserRequest, res: Response) => {
         const { result, tells } = await Algorithm.getInstance().fetchTells();
         if(result === 'error') return res.status(401).send({ success: false, error: "noTells" });
 
-        console.log(tells.length)
+        await Algorithm.getInstance().assignInterestsToUsers(req.userId);
 
         return res.send({ success: true, tells });
     } catch(e) {
