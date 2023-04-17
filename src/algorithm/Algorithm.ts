@@ -79,7 +79,7 @@ class Algorithm {
 
             const result = lda.getTopicWords();
 
-            return result.map((topic: any) => topic.topicText)
+            return result.map((topic: any) => topic.topicText);
         } catch(e) {
             console.log(e)
         }
