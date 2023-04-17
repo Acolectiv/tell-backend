@@ -1,7 +1,7 @@
 # Twitter-like API
 
 ## .env file
-`MONGO_URI=Your MongoDB link`\n
+`MONGO_URI=Your MongoDB link`
 `JWT_TOKEN=Random string`
 `CRYPTO_KEY=Random string`
 
