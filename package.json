@@ -40,7 +40,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.5",
     "ws": "^8.13.0",
-    "xss-clean": "^0.1.1"
+    "xss-clean": "^0.1.4"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
