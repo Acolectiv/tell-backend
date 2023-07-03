@@ -1,5 +1,7 @@
-import app from "./main";
+import sv from "./main";
+
+import http from "http";
 
 import config from "./config/server";
 
-app.listen(config.port, () => console.log(`[Express] -> Web Server running on port ${config.port}`));
+sv.listen(config.port, () => console.log(`[Express] -> Web Server running on port ${config.port}`));

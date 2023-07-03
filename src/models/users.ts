@@ -30,7 +30,9 @@ const UserSchema = new Schema<IUser>({
         seePastSanctions: { type: Boolean, default: false }
     },
     gcs: [{ type: SchemaTypes.ObjectId, ref: "GroupChat" }],
-    interests: [[ String ]]
+    interests: [[ String ]],
+    socketId: { type: String, default: "" },
+    isOnline: { type: Boolean, default: false }
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

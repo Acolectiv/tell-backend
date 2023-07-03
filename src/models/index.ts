@@ -5,5 +5,8 @@ export = {
     usernote: require("./usernote"),
     notification: require("./notification"),
     community: require("./community"),
-    groupchat: require("./groupchat")
+    groupchat: require("./groupchat"),
+    message: require("./message"),
+    group: require("./group"),
+    privatemessage: require("./privatemessage")
 }

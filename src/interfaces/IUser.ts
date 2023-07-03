@@ -15,5 +15,8 @@ export default interface IUser extends Document {
     isOwner: boolean,
     permissions: object,
     gcs: Array<any>,
-    interests: Array<any>
+    interests: Array<any>,
+    socketId: String,
+    isOnline: boolean,
+    presence: string
 }
