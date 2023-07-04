@@ -5,6 +5,7 @@ import {
 } from "mongoose";
 
 const User = model("User");
+const FriendRequest = model("FriendRequest");
 
 import IUser from "../interfaces/IUser";
 
@@ -104,6 +105,106 @@ class UserHandler {
                 });
             }
         });
+    }
+
+    public handleUserSendFriendRequest(socket: Socket): void {
+        socket.on('friendRequest', async (data: { senderId: string }) => {
+            const { senderId } = data;
+            const recipientId = socket.id;
+
+            this.sendFriendRequest(senderId, recipientId);
+        });
+    }
+
+    public handleUserAcceptFriendRequest(socket: Socket): void {
+        socket.on('acceptFriendRequest', async (data: { senderId: string }) => {
+            const { senderId } = data;
+            const recipientId = socket.id;
+
+            this.acceptFriendRequest(senderId, recipientId);
+        });
+    }
+
+    public handleUserRejectFriendRequest(socket: Socket): void {
+        socket.on('rejectFriendRequest', async (data: { senderId: string }) => {
+            const { senderId } = data;
+            const recipientId = socket.id;
+
+            this.rejectFriendRequest(senderId, recipientId);
+        });
+    }
+
+    private async sendFriendRequest(senderId: string, recipientId: string): Promise < void > {
+        const sender = await User.findById(senderId);
+        const recipient = await User.findById(recipientId);
+
+        if(sender && recipient) {
+            const friendRequest = await this.storeFriendRequest(sender._id, recipient._id);
+
+            recipient.friendRequests.push(friendRequest);
+            await recipient.save();
+
+            if(recipient.isOnline && recipient.socketId) {
+                this.io.to(recipient.socketId).emit('friendRequest', { senderId: sender._id });
+            }
+        }
+    }
+
+    public async acceptFriendRequest(userId: string, requesterId: string): Promise < void > {
+        await this.updateFriendStatus(userId, requesterId, true);
+
+        await this.deleteFriendRequest(userId, requesterId);
+
+        const requester = await User.findById(requesterId);
+
+        if(requester.isOnline && requester.socketId) {
+            this.io.to(requester.socketId).emit('friendRequestAccepted', { userId });
+        }
+    }
+
+    public async rejectFriendRequest(userId: string, requesterId: string): Promise < void > {
+        await this.updateFriendStatus(userId, requesterId, false);
+
+        await this.deleteFriendRequest(userId, requesterId);
+
+        const requester = await User.findById(requesterId);
+
+        if(requester.isOnline && requester.socketId) {
+            this.io.to(requester.socketId).emit('friendRequestRejected', { userId });
+        }
+    }
+
+    private async storeFriendRequest(senderId: string, recipientId: string): Promise <void> {
+        const friendRequest = new FriendRequest({
+            senderId,
+            recipientId
+        });
+
+        await friendRequest.save();
+
+        return friendRequest;
+    }
+
+    private async updateFriendStatus(userId: string, friendId: string, isFriend: boolean): Promise < void > {
+        const user = await User.findById(userId);
+        const friend = await User.findById(friendId);
+
+        if(user && friend) {
+            if(isFriend) {
+                user.friends.push(friend._id);
+                friend.friends.push(user._id);
+            } else {
+                user.friends.pull(friend._id);
+                friend.friends.pull(user._id);
+            }
+
+            await user.save();
+            await friend.save();
+        }
+    }
+
+    private async deleteFriendRequest(userId: string, requesterId: string): Promise < void > {
+        await FriendRequest.findOneAndDelete({ senderId: requesterId, recipientId: userId });
     }
 }
 

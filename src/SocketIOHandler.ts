@@ -52,6 +52,9 @@ class SocketIOHandler {
             this.userHandler.handleUserStatus(socket);
             this.userHandler.handleDisconnect(socket);
             this.userHandler.handleUserPresenceUpdate(socket);
+            this.userHandler.handleUserSendFriendRequest(socket);
+            this.userHandler.handleUserAcceptFriendRequest(socket);
+            this.userHandler.handleUserRejectFriendRequest(socket);
 
             // room handlers
             this.roomHandler.handleJoinRoom(socket);

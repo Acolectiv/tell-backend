@@ -8,5 +8,6 @@ export = {
     groupchat: require("./groupchat"),
     message: require("./message"),
     group: require("./group"),
-    privatemessage: require("./privatemessage")
+    privatemessage: require("./privatemessage"),
+    friendrequest: require("./friendrequest")
 }

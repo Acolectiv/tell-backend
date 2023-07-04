@@ -32,7 +32,9 @@ const UserSchema = new Schema<IUser>({
     gcs: [{ type: SchemaTypes.ObjectId, ref: "GroupChat" }],
     interests: [[ String ]],
     socketId: { type: String, default: "" },
-    isOnline: { type: Boolean, default: false }
+    isOnline: { type: Boolean, default: false },
+    friends: [{ type: SchemaTypes.ObjectId, ref: "user" }],
+    friendRequests: [{ type: SchemaTypes.ObjectId, ref: "FriendRequest" }]
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

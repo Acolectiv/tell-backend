@@ -18,5 +18,7 @@ export default interface IUser extends Document {
     interests: Array<any>,
     socketId: String,
     isOnline: boolean,
-    presence: string
+    presence: string,
+    friendRequests: any[],
+    friends: any[]
 }

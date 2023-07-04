@@ -9,11 +9,15 @@ const Message = model("Message");
 const PrivateMessage = model("PrivateMessage");
 const Group = model("Group");
 
+import MessageIndexer from "../indexers/MessageIndexer";
+
 class MessageHandler {
     public io: Server;
+    public messageIndexer: MessageIndexer;
 
     constructor(server: Server) {
         this.io = server;
+        this.messageIndexer = new MessageIndexer();
 
         console.log('[SocketIOHandler] MessageHandler initialized.');
     }
@@ -34,24 +38,37 @@ class MessageHandler {
                     return;
                 }
 
-                const newMessage = new Message({
+                const newMessage = await Message.create({
                     sender,
                     message,
                     reactions
                 });
 
+                this.messageIndexer.indexGroupMessage({
+                    groupId: roomId,
+                    message,
+                    sentBy: sender,
+                    messageId: newMessage._id
+                })
+
                 group.messages.push(newMessage);
                 await group.save();
                 console.log('Message stored in the database and added to the group');
             } else {
-                const newMessage = new PrivateMessage({
+                const newMessage = await PrivateMessage.create({
                     sender,
                     receiver,
                     message,
                     reactions
                 });
 
-                await newMessage.save();
+                this.messageIndexer.indexPrivateMessage({
+                    message,
+                    senderId: sender,
+                    receiverId: receiver,
+                    messageId: newMessage._id
+                });
+
                 console.log('Private message stored in the database');
             }
         } catch (error) {
