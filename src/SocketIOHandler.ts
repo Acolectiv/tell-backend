@@ -72,6 +72,7 @@ class SocketIOHandler {
             this.messageHandler.getUnreadMessageCount(socket);
             this.messageHandler.handleAddReaction(socket);
             this.messageHandler.handleRemoveReaction(socket);
+            this.messageHandler.handleGroupMessage(socket);
 
             console.log('finished registering listeners, setting user presence to online');
 

@@ -8,10 +8,9 @@
     "minor": "npm version minor --force",
     "major": "npm version major --force",
     "cy": "cypress run",
-    "test": "echo \"hi\""
+    "test": "echo \"TBM\""
   },
   "dependencies": {
-    "@cypherdb/cachefactory": "^1.0.1",
     "@sliit-foss/mongoose-filter-query": "^1.1.1",
     "@types/jest": "^29.5.0",
     "@types/node": "^10.17.60",

@@ -53,7 +53,7 @@ class MessageHandler {
 
                 group.messages.push(newMessage);
                 await group.save();
-                console.log('Message stored in the database and added to the group');
+                console.log('message stored in the database and added to the group');
             } else {
                 const newMessage = await PrivateMessage.create({
                     sender,
@@ -69,7 +69,7 @@ class MessageHandler {
                     messageId: newMessage._id
                 });
 
-                console.log('Private message stored in the database');
+                console.log('private message stored in the database');
             }
         } catch (error) {
             console.error('Error storing message in the database:', error);
@@ -104,6 +104,9 @@ class MessageHandler {
                     room,
                     reactions
                 });
+
+                await this.storeMessage(user._id, null, message, room);
+
                 console.log(`Message sent to room: ${room}`);
             } else {
                 socket.broadcast.emit('message', {
@@ -156,6 +159,46 @@ class MessageHandler {
             } else {
                 console.log('Receiver is currently offline');
             }
+        });
+    }
+
+    public handleGroupMessage(socket: Socket): void {
+        socket.on('groupMessage', async (data: {
+            senderId: string,
+            message: string,
+            groupId: string,
+            reactions: Array < string > | []
+        }) => {
+            const {
+                senderId,
+                groupId,
+                message,
+                reactions
+            } = data;
+
+            const group = await Group.findById(groupId);
+
+                if (!group) {
+                    console.log(`Group not found with _id: ${groupId}`);
+                    return;
+                }
+
+                const newMessage = await Message.create({
+                    sender: senderId,
+                    message,
+                    reactions
+                });
+
+                this.messageIndexer.indexGroupMessage({
+                    groupId: groupId,
+                    message,
+                    sentBy: senderId,
+                    messageId: newMessage._id
+                })
+
+                group.messages.push(newMessage);
+                await group.save();
+                console.log('message stored in the database and added to the group');
         });
     }
 

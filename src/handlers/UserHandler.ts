@@ -1,4 +1,7 @@
-import { Socket, Server } from "socket.io";
+import {
+    Socket,
+    Server
+} from "socket.io";
 
 import {
     model
@@ -64,7 +67,9 @@ class UserHandler {
     }
 
     public handleUserStatus(socket: Socket): void {
-        socket.on('setUserStatus', async (data: { isOnline: boolean }) => {
+        socket.on('setUserStatus', async (data: {
+            isOnline: boolean
+        }) => {
             const user = await this.getUserBySocketId(socket.id);
             if (user) {
                 await this.updateUserStatus(user._id.toString(), data.isOnline);
@@ -78,25 +83,27 @@ class UserHandler {
 
     public async updateUserPresence(userId: string, status: string): Promise < void > {
         try {
-            let statuses = [ "online", "away", "dnd" ];
+            let statuses = ["online", "away", "dnd"];
 
-            if(!statuses.includes(status)) return;
+            if (!statuses.includes(status)) return;
 
             await User.findByIdAndUpdate(userId, {
                 status
             });
 
             console.log(`user presense for ${userId} updated to ${status}`);
-        } catch(e) {
+        } catch (e) {
             console.log(`Error updating user presence: ${e}`);
         }
     }
 
     public handleUserPresenceUpdate(socket: Socket): void {
-        socket.on('setUserPresence', async (data: { status: string }) => {
+        socket.on('setUserPresence', async (data: {
+            status: string
+        }) => {
             const user = await this.getUserBySocketId(socket.id);
 
-            if(user) {
+            if (user) {
                 await this.updateUserPresence(user._id.toString(), data.status);
 
                 socket.broadcast.emit('userPresence', {
@@ -108,8 +115,12 @@ class UserHandler {
     }
 
     public handleUserSendFriendRequest(socket: Socket): void {
-        socket.on('friendRequest', async (data: { senderId: string }) => {
-            const { senderId } = data;
+        socket.on('friendRequest', async (data: {
+            senderId: string
+        }) => {
+            const {
+                senderId
+            } = data;
             const recipientId = socket.id;
 
             this.sendFriendRequest(senderId, recipientId);
@@ -117,8 +128,12 @@ class UserHandler {
     }
 
     public handleUserAcceptFriendRequest(socket: Socket): void {
-        socket.on('acceptFriendRequest', async (data: { senderId: string }) => {
-            const { senderId } = data;
+        socket.on('acceptFriendRequest', async (data: {
+            senderId: string
+        }) => {
+            const {
+                senderId
+            } = data;
             const recipientId = socket.id;
 
             this.acceptFriendRequest(senderId, recipientId);
@@ -126,8 +141,12 @@ class UserHandler {
     }
 
     public handleUserRejectFriendRequest(socket: Socket): void {
-        socket.on('rejectFriendRequest', async (data: { senderId: string }) => {
-            const { senderId } = data;
+        socket.on('rejectFriendRequest', async (data: {
+            senderId: string
+        }) => {
+            const {
+                senderId
+            } = data;
             const recipientId = socket.id;
 
             this.rejectFriendRequest(senderId, recipientId);
@@ -138,14 +157,16 @@ class UserHandler {
         const sender = await User.findById(senderId);
         const recipient = await User.findById(recipientId);
 
-        if(sender && recipient) {
+        if (sender && recipient) {
             const friendRequest = await this.storeFriendRequest(sender._id, recipient._id);
 
             recipient.friendRequests.push(friendRequest);
             await recipient.save();
 
-            if(recipient.isOnline && recipient.socketId) {
-                this.io.to(recipient.socketId).emit('friendRequest', { senderId: sender._id });
+            if (recipient.isOnline && recipient.socketId) {
+                this.io.to(recipient.socketId).emit('friendRequest', {
+                    senderId: sender._id
+                });
             }
         }
     }
@@ -157,8 +178,10 @@ class UserHandler {
 
         const requester = await User.findById(requesterId);
 
-        if(requester.isOnline && requester.socketId) {
-            this.io.to(requester.socketId).emit('friendRequestAccepted', { userId });
+        if (requester.isOnline && requester.socketId) {
+            this.io.to(requester.socketId).emit('friendRequestAccepted', {
+                userId
+            });
         }
     }
 
@@ -169,12 +192,14 @@ class UserHandler {
 
         const requester = await User.findById(requesterId);
 
-        if(requester.isOnline && requester.socketId) {
-            this.io.to(requester.socketId).emit('friendRequestRejected', { userId });
+        if (requester.isOnline && requester.socketId) {
+            this.io.to(requester.socketId).emit('friendRequestRejected', {
+                userId
+            });
         }
     }
 
-    private async storeFriendRequest(senderId: string, recipientId: string): Promise <void> {
+    private async storeFriendRequest(senderId: string, recipientId: string): Promise < void > {
         const friendRequest = new FriendRequest({
             senderId,
             recipientId
@@ -189,8 +214,8 @@ class UserHandler {
         const user = await User.findById(userId);
         const friend = await User.findById(friendId);
 
-        if(user && friend) {
-            if(isFriend) {
+        if (user && friend) {
+            if (isFriend) {
                 user.friends.push(friend._id);
                 friend.friends.push(user._id);
             } else {
@@ -204,7 +229,10 @@ class UserHandler {
     }
 
     private async deleteFriendRequest(userId: string, requesterId: string): Promise < void > {
-        await FriendRequest.findOneAndDelete({ senderId: requesterId, recipientId: userId });
+        await FriendRequest.findOneAndDelete({
+            senderId: requesterId,
+            recipientId: userId
+        });
     }
 }
 
