@@ -71,6 +71,9 @@ class RoomHandler {
                 // Add the user's ID to the members array of the room
                 if (user) {
                     room.members.push(user._id);
+                    user.rooms.push(room._id);
+
+                    await user.save();
                     await room.save();
                 }
 
@@ -78,7 +81,8 @@ class RoomHandler {
                 socket.emit('roomJoined', {
                     roomId: room._id,
                     name: room.name,
-                    owner: room.owner
+                    owner: room.owner,
+                    userId: user._id
                 });
             });
         });
@@ -102,16 +106,81 @@ class RoomHandler {
 
                 // Remove the user's ID from the members array
                 const index = room.members.indexOf(user._id);
+                const userIndex = user.rooms.indexOf(room._id);
+
                 if (index !== -1) {
                     room.members.splice(index, 1);
                     await room.save();
                 }
 
+                if(userIndex !== -1) {
+                    user.rooms.splice(userIndex, 1);
+                    await user.save();
+                }
+
                 // Leave the room
                 socket.leave(roomId);
+
+                socket.emit('roomLeft', {
+                    roomId: room._id,
+                    name: room.name,
+                    owner: room.owner,
+                    userId: user._id
+                });
+
                 console.log(`User with socket ID ${socket.id} left room: ${roomId}`);
             });
         });
+    }
+
+    private async kickGroupUser(group: any, kickedId: string, kickerId: string): Promise < void > {
+        if(!group || !kickedId || !kickerId) return;
+
+        let kickedUser = await User.findById(kickedId);
+
+        const index = group.members.indexOf(kickedUser._id);
+        const userIndex = kickedUser.rooms.indexOf(group._id);
+
+        if (index !== -1) {
+            group.members.splice(index, 1);
+            await group.save();
+        }
+
+        if(userIndex !== -1) {
+            kickedUser.rooms.splice(userIndex, 1);
+            await kickedUser.save();
+        }
+
+        this.io.sockets.sockets.get(kickedUser).leave(group._id);
+    }
+
+    public handleKickGroupUser(socket: Socket): void {
+        socket.on('kickGroupUser', async (obj: {
+            groupId: string,
+            kickedId: string,
+            kickerId: string
+        }) => {
+            let {
+                groupId,
+                kickedId,
+                kickerId
+            } = obj;
+
+            let kicker = await User.findById(kickerId);
+            let group = await Group.findById(groupId);
+
+            if(!group || !kicker) return;
+
+            if(group.owner !== kicker._id) return;
+
+            await this.kickGroupUser(group, kickedId, kickerId);
+
+            socket.emit('groupUserKicked', {
+                groupId,
+                kickedId,
+                kickerId
+            })
+        })
     }
 }
 

@@ -9,10 +9,14 @@ const Group = model("Group");
 class MessageIndexer {
     private privateMessages: Map < string, any > ;
     private groupMessages: Map < string, any > ;
+    private senderReceiverCapacity: Map < string, number > ;
+
+    private maxCapacityPerSenderReceiver: number = 256;
 
     constructor() {
         this.privateMessages = new Map < string, any > ();
         this.groupMessages = new Map < string, any > ();
+        this.senderReceiverCapacity = new Map < string, number > ();
 
         console.log('[MessageIndexer] Started indexing new messages.');
     }
@@ -31,6 +35,12 @@ class MessageIndexer {
         const senderKey = this.generatePrivateMessageKey(senderId, receiverId);
         const receiverKey = this.generatePrivateMessageKey(receiverId, senderId);
 
+        if(this.senderReceiverCapacity.get(senderKey) >= this.maxCapacityPerSenderReceiver ||
+           this.senderReceiverCapacity.get(receiverKey) >= this.maxCapacityPerSenderReceiver) {
+            const evictedMessage = Array.from(this.privateMessages.get(senderKey).values().first()) as any;
+            this.removePrivateMessage(senderId, receiverId, evictedMessage.messageId);
+        }
+
         const senderMessages = this.privateMessages.get(senderKey) || [];
         senderMessages.push(privateMessage);
         this.privateMessages.set(senderKey, senderMessages);
@@ -38,6 +48,14 @@ class MessageIndexer {
         const receiverMessages = this.privateMessages.get(receiverKey) || [];
         receiverMessages.push(privateMessage);
         this.privateMessages.set(receiverKey, receiverMessages);
+
+        if(!this.senderReceiverCapacity.get(senderKey) && !this.senderReceiverCapacity.get(receiverKey)) {
+            this.senderReceiverCapacity.set(senderKey, 1);
+            this.senderReceiverCapacity.set(receiverKey, 1);
+        } else {
+            this.senderReceiverCapacity.set(senderKey, this.senderReceiverCapacity.get(senderKey) + 1);
+            this.senderReceiverCapacity.set(receiverKey, this.senderReceiverCapacity.get(receiverKey) + 1);
+        }
 
         console.log('private message indexed');
     }
@@ -205,6 +223,13 @@ class MessageIndexer {
 
     private generatePrivateMessageKey(sender: string, receiver: string): string {
         return `${sender}_${receiver}`;
+    }
+
+    private getMessageById(messageId: string): any {
+        const privateMessages = Array.from(this.privateMessages.values());
+        const message = privateMessages.find((message: any) => message.messageId.toString() === messageId);
+
+        return message;
     }
 }
 

@@ -33,8 +33,9 @@ const UserSchema = new Schema<IUser>({
     interests: [[ String ]],
     socketId: { type: String, default: "" },
     isOnline: { type: Boolean, default: false },
-    friends: [{ type: SchemaTypes.ObjectId, ref: "user" }],
-    friendRequests: [{ type: SchemaTypes.ObjectId, ref: "FriendRequest" }]
+    friends: [{ type: SchemaTypes.ObjectId, ref: "User" }],
+    friendRequests: [{ type: SchemaTypes.ObjectId, ref: "FriendRequest" }],
+    rooms: [{ type: SchemaTypes.ObjectId, ref: "Group" }]
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

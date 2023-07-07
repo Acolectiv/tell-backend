@@ -20,5 +20,6 @@ export default interface IUser extends Document {
     isOnline: boolean,
     presence: string,
     friendRequests: any[],
-    friends: any[]
+    friends: any[],
+    rooms: any[]
 }
