@@ -35,7 +35,8 @@ class MessageHandler {
         receiver: string,
         message: string,
         roomId ? : string,
-        reactions: Array < string > = []
+        reactions: Array < string > = [],
+        replyTo?: string
     ): Promise < void > {
         try {
             if (roomId) {
@@ -49,7 +50,8 @@ class MessageHandler {
                 const newMessage = await Message.create({
                     sender,
                     message,
-                    reactions
+                    reactions,
+                    replyTo: replyTo || null
                 });
 
                 this.messageIndexer.indexGroupMessage({
@@ -67,7 +69,8 @@ class MessageHandler {
                     sender,
                     receiver,
                     message,
-                    reactions
+                    reactions,
+                    replyTo: replyTo || null
                 });
 
                 this.messageIndexer.indexPrivateMessage({
@@ -89,13 +92,15 @@ class MessageHandler {
             userId: string,
             message: string,
             room ? : string,
-            reactions: Array < string > | []
+            reactions: Array < string > | [],
+            replyTo?: string
         }) => {
             const {
                 userId,
                 message,
                 room,
-                reactions
+                reactions,
+                replyTo
             } = data;
 
             const user = await User.findById(userId);
@@ -110,17 +115,19 @@ class MessageHandler {
                     sender: user.username,
                     message,
                     room,
-                    reactions
+                    reactions,
+                    replyTo: replyTo || null
                 });
 
-                await this.storeMessage(user._id, null, message, room);
+                await this.storeMessage(user._id, null, message, room, reactions, replyTo || null);
 
                 this.logger.debug({ event: 'handleMessage' }, `Message sent to room: ${room}`);
             } else {
                 socket.broadcast.emit('message', {
                     sender: user.username,
                     message,
-                    reactions
+                    reactions,
+                    replyTo: replyTo || null
                 });
                 this.logger.debug({ event: 'handleMessage' }, 'Message broadcasted to all connected clients');
             }
@@ -132,13 +139,15 @@ class MessageHandler {
             senderId: string,
             receiverId: string,
             message: string,
-            reactions: Array < string > | []
+            reactions: Array < string > | [],
+            replyTo?: string
         }) => {
             const {
                 senderId,
                 receiverId,
                 message,
-                reactions
+                reactions,
+                replyTo
             } = data;
 
             const sender = await User.findById(senderId);
@@ -155,7 +164,7 @@ class MessageHandler {
                 return;
             }
 
-            await this.storeMessage(sender.username, receiver.username, message, null, reactions);
+            await this.storeMessage(sender.username, receiver.username, message, null, reactions, replyTo || null);
 
             if (receiver.socketId && this.isOnline(receiver.socektId)) {
                 this.io.to(receiver.socketId).emit('privateMessage', {
@@ -163,7 +172,7 @@ class MessageHandler {
                     message,
                     reactions
                 });
-                this.logger.debug({ event: 'privateMessage' }, 'private message sent');
+                this.logger.debug({ event: 'privateMessage' }, `private message sent, reply to ${replyTo || null}`);
             } else {
                 this.logger.debug({ event: 'privateMessage' }, 'receiver is currently offline');
             }
@@ -172,13 +181,11 @@ class MessageHandler {
 
     public handleGroupMessage(socket: Socket): void {
         socket.on('groupMessage', async (data: {
-            senderId: string,
             message: string,
             groupId: string,
             reactions: Array < string > | []
         }) => {
             const {
-                senderId,
                 groupId,
                 message,
                 reactions
@@ -186,34 +193,43 @@ class MessageHandler {
 
             const group = await Group.findById(groupId);
 
+            const senderId = (socket as any).userId
+
             if (!group) {
                 console.log(`Group not found with _id: ${groupId}`);
                 return;
             }
 
+            if(!this.isGroupMember(group, (socket as any).userId) && !this.isGroupOwner(group, (socket as any).userId))
+                return socket.emit('invalidPermission');
+
+            let mentions = await this.parseMentions(message);
+
             const newMessage = await Message.create({
                 sender: senderId,
                 message,
-                reactions
+                reactions,
+                mentions
             });
 
             this.messageIndexer.indexGroupMessage({
                 groupId: groupId,
                 message,
                 sentBy: senderId,
-                messageId: newMessage._id
+                messageId: newMessage._id,
             })
 
             this.io.to(groupId).emit('newGroupMessage', {
                 groupId,
                 senderId,
                 message,
-                messageId: newMessage._id
+                messageId: newMessage._id,
+                mentions
             });
 
             group.messages.push(newMessage);
             await group.save();
-            this.logger.debug({ event: 'groupMessage' }, 'message stored in the database and added to the group');
+            this.logger.debug({ event: 'groupMessage' }, `stored & indexed, mentions: ${mentions.join(", ")}.`);
         });
     }
 
@@ -515,6 +531,40 @@ class MessageHandler {
 
     private isOnline(socketId: string) {
         return this.io.sockets.sockets.hasOwnProperty(socketId);
+    }
+
+    private async getMessageReactions(messageId: string): Promise < Map < string, number > > {
+        const message = await Message.findById(messageId);
+        if (!message) {
+            this.logger.error({ event: 'getReactions' }, `Message ${messageId} not found`);
+            return null;
+        }
+
+        return message.reactions;
+    }
+
+    private async parseMentions(messageText: string): Promise<string[]> {
+        const mentionRegex = /@(\w+)/g;
+        const mentions = [];
+        let match;
+    
+        while ((match = mentionRegex.exec(messageText)) !== null) {
+            const username = match[1];
+            const user = await User.findOne({ username });
+            if (user) {
+                mentions.push(user._id);
+            }
+        }
+    
+        return mentions;
+    }
+
+    private isGroupMember(group: any, user: string): boolean {
+        return group.members.includes(user);
+    }
+
+    private isGroupOwner(group: any, user: string): boolean {
+        return group.owner.equals(user);
     }
 }
 

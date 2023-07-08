@@ -1,6 +1,8 @@
 import { Schema, model, SchemaTypes } from "mongoose";
 
-const MessageSchema = new Schema({
+import IMessage from "../interfaces/IMessage";
+
+const MessageSchema = new Schema<IMessage>({
     sender: { type: Schema.Types.ObjectId, ref: "User" },
     receiver: { type: Schema.Types.ObjectId, ref: "User" },
     seenBy: [{ type: Schema.Types.ObjectId, ref: "User", default: null }],
@@ -10,7 +12,9 @@ const MessageSchema = new Schema({
         type: String,
         sentBy: { type: Schema.Types.ObjectId, ref: "User" },
         reaction: String
-    }]
+    }],
+    mentions: [{ type: Schema.Types.ObjectId, ref: "User", default: null }],
+    replyTo: { type: Schema.Types.ObjectId, ref: "Message" }
 });
 
-model("Message", MessageSchema);
+model<IMessage>("Message", MessageSchema);
