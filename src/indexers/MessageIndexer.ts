@@ -1,10 +1,6 @@
-import {
-    model
-} from "mongoose";
+import { getStreams } from "../config/bunyan";
 
-const Message = model("Message");
-const PrivateMessage = model("PrivateMessage");
-const Group = model("Group");
+import bunyan from "bunyan";
 
 class MessageIndexer {
     private privateMessages: Map < string, any > ;
@@ -13,12 +9,16 @@ class MessageIndexer {
 
     private maxCapacityPerSenderReceiver: number = 256;
 
+    public logger: bunyan;
+
     constructor() {
         this.privateMessages = new Map < string, any > ();
         this.groupMessages = new Map < string, any > ();
         this.senderReceiverCapacity = new Map < string, number > ();
 
-        console.log('[MessageIndexer] Started indexing new messages.');
+        this.logger = bunyan.createLogger({ name: "MessageIndexer", streams: getStreams() });
+
+        this.logger.info({ event: 'MessageIndexer' }, '[MessageIndexer] Started indexing new messages.');
     }
 
     public indexPrivateMessage(privateMessage: {
@@ -29,7 +29,8 @@ class MessageIndexer {
     }): void {
         const {
             senderId,
-            receiverId
+            receiverId,
+            messageId
         } = privateMessage;
 
         const senderKey = this.generatePrivateMessageKey(senderId, receiverId);
@@ -57,7 +58,7 @@ class MessageIndexer {
             this.senderReceiverCapacity.set(receiverKey, this.senderReceiverCapacity.get(receiverKey) + 1);
         }
 
-        console.log('private message indexed');
+        this.logger.info({ event: 'indexPrivateMessage' }, `private message ${messageId} indexed`);
     }
 
     public indexGroupMessage(groupMessage: {
@@ -72,7 +73,7 @@ class MessageIndexer {
         messages.push(groupMessage);
         this.groupMessages.set(groupMessage.groupId, messages);
 
-        console.log(`group message indexed`);
+        this.logger.info({ event: 'indexGroupMessage' }, `group message ${groupMessage.messageId} indexed`);
     }
 
     public getPrivateMessages(privateMessage: {

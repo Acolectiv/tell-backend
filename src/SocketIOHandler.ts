@@ -3,6 +3,8 @@ import {
     Socket
 } from "socket.io";
 
+import { getStreams } from "./config/bunyan";
+
 import MessageHandler from "./handlers/MessageHandler";
 import UserHandler from "./handlers/UserHandler";
 import RoomHandler from "./handlers/RoomHandler";
@@ -11,9 +13,13 @@ import AuthHandler from "./handlers/AuthHandler";
 
 import http from "http";
 
+import bunyan from "bunyan";
+
 class SocketIOHandler {
     private io: Server;
     private connectedClients: Set < string > ;
+
+    private logger: bunyan;
 
     private messageHandler: MessageHandler;
     private userHandler: UserHandler;
@@ -26,14 +32,16 @@ class SocketIOHandler {
         this.userHandler = new UserHandler(this.io);
         this.roomHandler = new RoomHandler(this.io);
 
+        this.logger = bunyan.createLogger({ name: "SocketIOHandler", streams: getStreams() });
+
         this.connectedClients = new Set < string > ();
 
-        console.log('[SocketIOHandler] Handler has been initialized.');
+        this.logger.info({ event: 'SocketIOHandler' }, '[SocketIOHandler] Handler has been initialized.');
     }
 
     public configureSockets(): void {
         this.io.on('connection', async (socket: Socket) => {
-            console.log(`A user connected with socket ID: ${socket.id}`);
+            this.logger.info({ event: 'connection' }, `a user connected with socket ID: ${socket.id}`);
 
             const user = await AuthHandler.authenticateUser(socket);
 
@@ -46,7 +54,7 @@ class SocketIOHandler {
 
             this.connectedClients.add(socket.id);
 
-            console.log('registering all the listeners');
+            this.logger.info({ event: 'connection' }, 'registering all the listeners');
 
             // user handlers
             this.userHandler.handleUserStatus(socket);
@@ -60,6 +68,9 @@ class SocketIOHandler {
             this.roomHandler.handleJoinRoom(socket);
             this.roomHandler.handleLeaveRoom(socket);
             this.roomHandler.handleCreateRoom(socket);
+            this.roomHandler.handleKickGroupUser(socket);
+            this.roomHandler.handleBanGroupUser(socket);
+            this.roomHandler.handleUnbanGroupUser(socket);
 
             // message handlers
             this.messageHandler.handleMessage(socket);
@@ -74,7 +85,7 @@ class SocketIOHandler {
             this.messageHandler.handleRemoveReaction(socket);
             this.messageHandler.handleGroupMessage(socket);
 
-            console.log('finished registering listeners, setting user presence to online');
+            this.logger.info({ event: 'connection' }, 'finished registering listeners, setting user presence to online');
 
             this.userHandler.updateUserStatus(user._id, true);
         });

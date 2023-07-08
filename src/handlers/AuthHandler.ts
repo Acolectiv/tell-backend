@@ -15,6 +15,8 @@ class AuthHandler {
     
         let user = await User.findById(decoded.userId);
 
+        Object.assign(socket, { userId: user._id });
+
         if(user) return user;
         else return null;
     }
