@@ -7,8 +7,6 @@ class MessageIndexer {
 
     private maxCapacityPerSenderReceiver: number = 256;
 
-    public logger: bunyan;
-
     constructor() {
         this.privateMessages = new Map < string, any > ();
         this.groupMessages = new Map < string, any > ();
