@@ -10,7 +10,12 @@ const PrivateMessageSchema = new Schema<IPrivateMessage>({
         type: String,
         sentBy: { type: Schema.Types.ObjectId, ref: "User" },
         reaction: String
-    }]
+    }],
+    mentions: [{ type: Schema.Types.ObjectId, ref: "User", default: null }],
+    replyTo: { type: Schema.Types.ObjectId, ref: "Message" },
+    lastAccesedAt: Number,
+    archived: { type: Boolean, default: false },
+    archivedAt: { type: Number, default: null }
 });
 
 model<IPrivateMessage>("PrivateMessage", PrivateMessageSchema);

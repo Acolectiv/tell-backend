@@ -4,12 +4,10 @@ import {
     model
 } from "mongoose";
 
-import { getStreams } from "../config/bunyan";
-
 const User = model("User");
 const Group = model("Group");
 
-import bunyan from "bunyan";
+import logger from "../utils/logger";
 
 class RoomHandler {
     public io: Server;
@@ -19,9 +17,7 @@ class RoomHandler {
     constructor(server: Server) {
         this.io = server;
 
-        this.logger = bunyan.createLogger({ name: "RoomHandler", streams: getStreams() });
-
-        this.logger.info({ event: 'RoomHandler' }, '[SocketIOHandler] RoomHandler initialized.');
+        logger.info({ event: 'RoomHandler' }, '[SocketIOHandler] RoomHandler initialized.');
     }
 
     public handleCreateRoom(socket: Socket): void {
@@ -36,7 +32,7 @@ class RoomHandler {
 
             let room = await newRoom.save();
 
-            this.logger.info({ event: 'createRoom' }, `Room created: ${room._id}`);
+            logger.info({ event: 'createRoom' }, `Room created: ${room._id}`);
 
             socket.emit('roomCreated', {
                 roomId: room._id,
@@ -51,7 +47,7 @@ class RoomHandler {
             // Find the room in the database
             Group.findById(roomId, async (err: any, room: any) => {
                 if (err || !room) {
-                    this.logger.error({ event: 'joinRoom' }, 'Error finding room:', err);
+                    logger.error({ event: 'joinRoom' }, 'Error finding room:', err);
                     return;
                 }
 
@@ -59,25 +55,25 @@ class RoomHandler {
                 const user = await User.findById(userId);
 
                 if (user && room.bannedMembers.includes(user._id)) {
-                    this.logger.info({ event: 'joinRoom' }, `User is banned from room: ${roomId}`);
+                    logger.info({ event: 'joinRoom' }, `User is banned from room: ${roomId}`);
                     return;
                 }
 
                 if (user && this.isGroupMember(room, user)) {
-                    this.logger.info({ event: 'joinRoom' }, `User is already a member of room: ${roomId}`);
+                    logger.info({ event: 'joinRoom' }, `User is already a member of room: ${roomId}`);
                     return;
                 }
 
                 // Check if the user is the owner of the room
                 if (user && this.isGroupOwner(room, user)) {
-                    this.logger.info({ event: 'joinRoom' }, `User is the owner of room: ${roomId}. Entry denied.`);
+                    logger.info({ event: 'joinRoom' }, `User is the owner of room: ${roomId}. Entry denied.`);
                     return;
                 }
 
                 // Join the room
                 socket.join(roomId);
 
-                this.logger.info({ event: 'joinRoom' }, `User with socket ID ${socket.id} joined room: ${roomId}`);
+                logger.info({ event: 'joinRoom' }, `User with socket ID ${socket.id} joined room: ${roomId}`);
 
                 // Add the user's ID to the members array of the room
                 if (user) {
@@ -103,14 +99,14 @@ class RoomHandler {
             const user = await User.findById(userId);
 
             if (!user) {
-                this.logger.info({ event: 'leaveRoom' }, `User not found with socket ID: ${socket.id}`);
+                logger.info({ event: 'leaveRoom' }, `User not found with socket ID: ${socket.id}`);
                 return;
             }
 
             // Find the room in the database
             Group.findById(roomId, async (err: any, room: any) => {
                 if (err || !room) {
-                    this.logger.error({ event: 'leaveRoom' }, 'Error finding room:', err);
+                    logger.error({ event: 'leaveRoom' }, 'Error finding room:', err);
                     return;
                 }
 
@@ -129,7 +125,7 @@ class RoomHandler {
                     userId: user._id
                 });
 
-                this.logger.info({ event: 'leaveRoom' }, `User with socket ID ${socket.id} left room: ${roomId}`);
+                logger.info({ event: 'leaveRoom' }, `User with socket ID ${socket.id} left room: ${roomId}`);
             });
         });
     }
@@ -291,7 +287,7 @@ class RoomHandler {
         actionTakenAgainst: string,
         createdAt: number
     } {
-        this.logger.info({ event: 'getLogObject' }, 'action log inserted.');
+        logger.info({ event: 'getLogObject' }, 'action log inserted.');
 
         return {
             actionType,
