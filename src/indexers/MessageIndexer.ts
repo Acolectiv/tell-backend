@@ -27,30 +27,19 @@ class MessageIndexer {
             messageId
         } = privateMessage;
 
-        const senderKey = this.generatePrivateMessageKey(senderId, receiverId);
-        const receiverKey = this.generatePrivateMessageKey(receiverId, senderId);
+        const convKey = this.generatePrivateMessageKey(senderId, receiverId);
 
-        if(this.senderReceiverCapacity.get(senderKey) >= this.maxCapacityPerSenderReceiver ||
-           this.senderReceiverCapacity.get(receiverKey) >= this.maxCapacityPerSenderReceiver) {
-            const evictedMessage = Array.from(this.privateMessages.get(senderKey).values().first()) as any;
+        if(this.senderReceiverCapacity.get(convKey) >= this.maxCapacityPerSenderReceiver) {
+            const evictedMessage = Array.from(this.privateMessages.get(convKey).values().first()) as any;
             this.removePrivateMessage(senderId, receiverId, evictedMessage.messageId);
         }
 
-        const senderMessages = this.privateMessages.get(senderKey) || [];
-        senderMessages.push(privateMessage);
-        this.privateMessages.set(senderKey, senderMessages);
+        const messages = this.privateMessages.get(convKey) || [];
+        messages.push(privateMessage);
+        this.privateMessages.set(convKey, messages);
 
-        const receiverMessages = this.privateMessages.get(receiverKey) || [];
-        receiverMessages.push(privateMessage);
-        this.privateMessages.set(receiverKey, receiverMessages);
-
-        if(!this.senderReceiverCapacity.get(senderKey) && !this.senderReceiverCapacity.get(receiverKey)) {
-            this.senderReceiverCapacity.set(senderKey, 1);
-            this.senderReceiverCapacity.set(receiverKey, 1);
-        } else {
-            this.senderReceiverCapacity.set(senderKey, this.senderReceiverCapacity.get(senderKey) + 1);
-            this.senderReceiverCapacity.set(receiverKey, this.senderReceiverCapacity.get(receiverKey) + 1);
-        }
+        if(!this.senderReceiverCapacity.get(convKey))this.senderReceiverCapacity.set(convKey, 1)
+        else this.senderReceiverCapacity.set(convKey, this.senderReceiverCapacity.get(convKey) + 1);
 
         logger.info({ event: 'indexPrivateMessage' }, `private message ${messageId} indexed`);
     }
@@ -217,7 +206,9 @@ class MessageIndexer {
     }
 
     private generatePrivateMessageKey(sender: string, receiver: string): string {
-        return `${sender}_${receiver}`;
+        const sortedIds = [sender, receiver].map((id) => id.toString()).sort();
+        const key = sortedIds.join('_');
+        return key;
     }
 
     private getMessageById(messageId: string): any {
