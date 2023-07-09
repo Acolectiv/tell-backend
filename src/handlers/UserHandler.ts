@@ -7,26 +7,20 @@ import {
     model
 } from "mongoose";
 
-import { getStreams } from "../config/bunyan";
-
 const User = model("User");
 const FriendRequest = model("FriendRequest");
 
 import IUser from "../interfaces/IUser";
 
-import bunyan from "bunyan";
+import logger from "../utils/logger";
 
 class UserHandler {
     public io: Server;
 
-    private logger: bunyan;
-
     constructor(server: Server) {
         this.io = server;
 
-        this.logger = bunyan.createLogger({ name: "UserHandler", streams: getStreams() });
-
-        this.logger.info({ event: 'UserHandler' }, '[SocketIOHandler] UserHandler initialized.');
+        logger.info({ event: 'UserHandler' }, '[SocketIOHandler] UserHandler initialized.');
     }
 
     public async getUserBySocketId(socketId: string): Promise < IUser | null > {
@@ -35,7 +29,7 @@ class UserHandler {
                 socketId
             });
         } catch (error) {
-            this.logger.error({ event: 'getUserBySocketId' }, 'Error retrieving user:', error);
+            logger.error({ event: 'getUserBySocketId' }, 'Error retrieving user:', error);
             return null;
         }
     }
@@ -46,13 +40,13 @@ class UserHandler {
                 socketId
             });
         } catch (error) {
-            this.logger.error({ event: 'updateUserSocketId' }, 'Error updating user socketId:', error);
+            logger.error({ event: 'updateUserSocketId' }, 'Error updating user socketId:', error);
         }
     }
 
     public handleDisconnect(socket: Socket): void {
         socket.on('disconnect', async () => {
-            this.logger.info({ event: 'disconnect' }, `A user disconnected with socket ID: ${socket.id}`);
+            logger.info({ event: 'disconnect' }, `A user disconnected with socket ID: ${socket.id}`);
 
             const user = await this.getUserBySocketId(socket.id);
 
@@ -68,9 +62,9 @@ class UserHandler {
             await User.findByIdAndUpdate(userId, {
                 isOnline
             });
-            this.logger.info({ event: 'updateUserStatus' }, `User presence updated: User ${userId} is ${isOnline ? 'online' : 'offline'}`);
+            logger.info({ event: 'updateUserStatus' }, `User presence updated: User ${userId} is ${isOnline ? 'online' : 'offline'}`);
         } catch (error) {
-            this.logger.error({ event: 'updateUserStatus' }, 'Error updating user presence:', error);
+            logger.error({ event: 'updateUserStatus' }, 'Error updating user presence:', error);
         }
     }
 
@@ -99,9 +93,9 @@ class UserHandler {
                 status
             });
 
-            this.logger.info({ event: 'updateUserPresence' }, `user presense for ${userId} updated to ${status}`);
+            logger.info({ event: 'updateUserPresence' }, `user presense for ${userId} updated to ${status}`);
         } catch (e) {
-            this.logger.info({ event: 'updateUserPresence' }, `Error updating user presence: ${e}`);
+            logger.info({ event: 'updateUserPresence' }, `Error updating user presence: ${e}`);
         }
     }
 

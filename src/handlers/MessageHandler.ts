@@ -1,13 +1,5 @@
 import { Socket, Server } from "socket.io";
 
-import { getStreams } from "../config/bunyan";
-
-// @ts-ignore
-import ss from "socket.io-stream";
-
-import path from "path";
-import fs from "fs";
-
 import {
     model
 } from "mongoose";
@@ -19,21 +11,17 @@ const Group = model("Group");
 
 import MessageIndexer from "../indexers/MessageIndexer";
 
-import bunyan from "bunyan";
+import logger from "../utils/logger";
 
 class MessageHandler {
     public io: Server;
     public messageIndexer: MessageIndexer;
 
-    private logger: bunyan;
-
     constructor(server: Server) {
         this.io = server;
         this.messageIndexer = new MessageIndexer();
 
-        this.logger = bunyan.createLogger({ name: "MessageHandler", streams: getStreams() });
-
-        this.logger.debug({ event: 'MessageHandler' }, '[SocketIOHandler] MessageHandler initialized.');
+        logger.debug({ event: 'MessageHandler' }, '[SocketIOHandler] MessageHandler initialized.');
     }
 
     public async storeMessage(
@@ -57,7 +45,8 @@ class MessageHandler {
                     sender,
                     message,
                     reactions,
-                    replyTo: replyTo || null
+                    replyTo: replyTo || null,
+                    lastAccesedAt: Date.now()
                 });
 
                 this.messageIndexer.indexGroupMessage({
@@ -69,14 +58,15 @@ class MessageHandler {
 
                 group.messages.push(newMessage);
                 await group.save();
-                this.logger.debug({ event: 'storeMessage' }, 'message stored in the database and added to the group');
+                logger.debug({ event: 'storeMessage' }, 'message stored in the database and added to the group');
             } else {
                 const newMessage = await PrivateMessage.create({
                     sender,
                     receiver,
                     message,
                     reactions,
-                    replyTo: replyTo || null
+                    replyTo: replyTo || null,
+                    lastAccesedAt: Date.now()
                 });
 
                 this.messageIndexer.indexPrivateMessage({
@@ -86,10 +76,10 @@ class MessageHandler {
                     messageId: newMessage._id
                 });
 
-                this.logger.debug({ event: 'storeMessage' }, 'private message stored in the database');
+                logger.debug({ event: 'storeMessage' }, 'private message stored in the database');
             }
         } catch (error) {
-            this.logger.error('Error storing message in the database:', error);
+            logger.error('Error storing message in the database:', error);
         }
     }
 
@@ -127,7 +117,7 @@ class MessageHandler {
 
                 await this.storeMessage(user._id, null, message, room, reactions, replyTo);
 
-                this.logger.debug({ event: 'handleMessage' }, `Message sent to room: ${room}`);
+                logger.debug({ event: 'handleMessage' }, `Message sent to room: ${room}`);
             } else {
                 socket.broadcast.emit('message', {
                     sender: user.username,
@@ -135,7 +125,7 @@ class MessageHandler {
                     reactions,
                     replyTo: replyTo || null
                 });
-                this.logger.debug({ event: 'handleMessage' }, 'Message broadcasted to all connected clients');
+                logger.debug({ event: 'handleMessage' }, 'Message broadcasted to all connected clients');
             }
         });
     }
@@ -159,14 +149,14 @@ class MessageHandler {
             const sender = await User.findById(senderId);
 
             if (!sender) {
-                this.logger.debug({ event: 'privateMessage' }, `sender not found with _id: ${senderId}`);
+                logger.debug({ event: 'privateMessage' }, `sender not found with _id: ${senderId}`);
                 return;
             }
 
             const receiver = await User.findById(receiverId);
 
             if (!receiver) {
-                this.logger.debug({ event: 'privateMessage' }, `receiver not found with _id: ${receiverId}`);
+                logger.debug({ event: 'privateMessage' }, `receiver not found with _id: ${receiverId}`);
                 return;
             }
 
@@ -179,9 +169,9 @@ class MessageHandler {
                     message,
                     reactions
                 });
-                this.logger.debug({ event: 'privateMessage' }, `private message sent, reply to ${replyTo || null}`);
+                logger.debug({ event: 'privateMessage' }, `private message sent, reply to ${replyTo || null}`);
             } else {
-                this.logger.debug({ event: 'privateMessage' }, 'receiver is currently offline');
+                logger.debug({ event: 'privateMessage' }, 'receiver is currently offline');
             }
         });
     }
@@ -199,7 +189,7 @@ class MessageHandler {
             } = data;
 
             if(!groupId || !message) {
-                this.logger.debug({ event: 'groupMessage' }, `groupId not found with _id: ${groupId || null}`);
+                logger.debug({ event: 'groupMessage' }, `groupId not found with _id: ${groupId || null}`);
                 return;
             }
 
@@ -208,7 +198,7 @@ class MessageHandler {
             const senderId = (socket as any).userId;
 
             if(!group) {
-                this.logger.debug({ event: 'groupMessage' }, `group not found with _id: ${groupId || null}`);
+                logger.debug({ event: 'groupMessage' }, `group not found with _id: ${groupId || null}`);
                 return;
             }
 
@@ -241,7 +231,7 @@ class MessageHandler {
 
             group.messages.push(newMessage);
             await group.save();
-            this.logger.debug({ event: 'groupMessage' }, `stored & indexed, mentions: ${mentions.join(", ")}.`);
+            logger.debug({ event: 'groupMessage' }, `stored & indexed, mentions: ${mentions.join(", ")}.`);
         });
     }
 
@@ -256,7 +246,7 @@ class MessageHandler {
             } = data;
 
             if(!senderId || !receiverId) {
-                this.logger.debug({ event: 'fetchMessagesBetweenUsers' }, `pms not found with sender ${senderId} and receiver ${receiverId}`);
+                logger.debug({ event: 'fetchMessagesBetweenUsers' }, `pms not found with sender ${senderId} and receiver ${receiverId}`);
                 return;
             }
 
@@ -281,12 +271,12 @@ class MessageHandler {
     public handleTyping(socket: Socket): void {
         socket.on('typing', (room: string) => {
             socket.to(room).emit('typing', socket.id);
-            this.logger.debug({ event: 'typing' }, `User with socket ID ${socket.id} is typing in room: ${room}`);
+            logger.debug({ event: 'typing' }, `User with socket ID ${socket.id} is typing in room: ${room}`);
         });
 
         socket.on('stopTyping', (room: string) => {
             socket.to(room).emit('stopTyping', socket.id);
-            this.logger.debug({ event: 'stopTyping' }, `User with socket ID ${socket.id} stopped typing in room: ${room}`);
+            logger.debug({ event: 'stopTyping' }, `User with socket ID ${socket.id} stopped typing in room: ${room}`);
         });
     }
 
@@ -299,7 +289,7 @@ class MessageHandler {
             } = data;
 
             if(!messageId) {
-                this.logger.debug({ event: 'deleteMessage' }, `message not found with _id ${messageId || null}`);
+                logger.debug({ event: 'deleteMessage' }, `message not found with _id ${messageId || null}`);
                 return;
             }
 
@@ -307,12 +297,12 @@ class MessageHandler {
                 const message = await PrivateMessage.findByIdAndRemove(messageId).exec();
                 if (message) {
                     socket.emit("messageDeleted", messageId);
-                    this.logger.debug({ event: 'deleteMessage' }, `Message with ID ${messageId} deleted`);
+                    logger.debug({ event: 'deleteMessage' }, `Message with ID ${messageId} deleted`);
                 } else {
-                    this.logger.debug({ event: 'deleteMessage' }, `Message with ID ${messageId} not found`);
+                    logger.debug({ event: 'deleteMessage' }, `Message with ID ${messageId} not found`);
                 }
             } catch (error) {
-                this.logger.error(`Error deleting message with ID ${messageId}:`, error);
+                logger.error(`Error deleting message with ID ${messageId}:`, error);
             }
         });
     }
@@ -328,7 +318,7 @@ class MessageHandler {
             } = data;
 
             if(!messageId || !receiverId) {
-                this.logger.debug({ event: 'seenMessage' }, `message not found with _id ${messageId || null} or receiver not found with _id ${receiverId || null}`);
+                logger.debug({ event: 'seenMessage' }, `message not found with _id ${messageId || null} or receiver not found with _id ${receiverId || null}`);
                 return;
             }
 
@@ -347,12 +337,12 @@ class MessageHandler {
                         await message.save();
                     }
                     socket.emit("messageSeen", messageId);
-                    this.logger.debug({ event: 'seenMessage' }, `Message with ID ${messageId} marked as seen`);
+                    logger.debug({ event: 'seenMessage' }, `Message with ID ${messageId} marked as seen`);
                 } else {
-                    this.logger.debug({ event: 'seenMessage' }, `Message with ID ${messageId} not found`);
+                    logger.debug({ event: 'seenMessage' }, `Message with ID ${messageId} not found`);
                 }
             } catch (error) {
-                this.logger.error(`Error marking message with ID ${messageId} as seen:`, error);
+                logger.error(`Error marking message with ID ${messageId} as seen:`, error);
             }
         });
     }
@@ -368,7 +358,7 @@ class MessageHandler {
             } = data;
 
             if(!messageId || !newMessageContent) {
-                this.logger.debug({ event: 'updateMessageContent' }, `message not found with _id ${messageId || null} or newMessageContent not available`);
+                logger.debug({ event: 'updateMessageContent' }, `message not found with _id ${messageId || null} or newMessageContent not available`);
                 return;
             }
 
@@ -380,12 +370,12 @@ class MessageHandler {
                 }).exec();
 
                 if (message) {
-                    this.logger.debug({ event: 'updateMessageContent' }, `Message with ID ${messageId} content updated to: ${newMessageContent}`);
+                    logger.debug({ event: 'updateMessageContent' }, `Message with ID ${messageId} content updated to: ${newMessageContent}`);
                 } else {
-                    this.logger.debug({ event: 'updateMessageContent' }, `Message with ID ${messageId} not found`);
+                    logger.debug({ event: 'updateMessageContent' }, `Message with ID ${messageId} not found`);
                 }
             } catch (error) {
-                this.logger.error(`Error updating message with ID ${messageId} content:`, error);
+                logger.error(`Error updating message with ID ${messageId} content:`, error);
             }
         })
     }
@@ -399,7 +389,7 @@ class MessageHandler {
             } = data;
 
             if(!receiverId) {
-                this.logger.debug({ event: 'getUnreadMessageCount' }, `receiver with _id ${receiverId || null} not found`);
+                logger.debug({ event: 'getUnreadMessageCount' }, `receiver with _id ${receiverId || null} not found`);
                 return;
             }
 
@@ -412,7 +402,7 @@ class MessageHandler {
                 }).exec();
                 return count;
             } catch (error) {
-                this.logger.error('Error retrieving unread message count:', error);
+                logger.error('Error retrieving unread message count:', error);
                 return 0;
             }
         })
@@ -485,7 +475,7 @@ class MessageHandler {
             const user = await User.findById(userId);
 
             if (!user) {
-                this.logger.debug({ event: 'addReaction' }, `User not found with socket ID: ${socket.id}`);
+                logger.debug({ event: 'addReaction' }, `User not found with socket ID: ${socket.id}`);
                 return;
             }
 
@@ -493,7 +483,7 @@ class MessageHandler {
                 const message = await Message.findById(messageId);
 
                 if (!message) {
-                    this.logger.debug({ event: 'addReaction' }, `Message not found with ID: ${messageId}`);
+                    logger.debug({ event: 'addReaction' }, `Message not found with ID: ${messageId}`);
                     return;
                 }
 
@@ -517,7 +507,7 @@ class MessageHandler {
                     reactions: savedMessage.reactions
                 });
             } catch (error) {
-                this.logger.error('Failed to add reaction:', error.message);
+                logger.error('Failed to add reaction:', error.message);
             }
         });
     }
@@ -535,7 +525,7 @@ class MessageHandler {
             const user = await User.findById(userId);
 
             if (!user) {
-                this.logger.debug({ event: 'removeReaction' }, `User not found with socket ID: ${socket.id}`);
+                logger.debug({ event: 'removeReaction' }, `User not found with socket ID: ${socket.id}`);
                 return;
             }
 
@@ -543,7 +533,7 @@ class MessageHandler {
                 const message = await Message.findById(messageId);
 
                 if (!message) {
-                    this.logger.debug({ event: 'removeReaction' }, `Message not found with ID: ${messageId}`);
+                    logger.debug({ event: 'removeReaction' }, `Message not found with ID: ${messageId}`);
                     return;
                 }
 
@@ -561,7 +551,7 @@ class MessageHandler {
                     });
                 }
             } catch (error) {
-                this.logger.error('Failed to remove reaction:', error.message);
+                logger.error('Failed to remove reaction:', error.message);
             }
         });
     }
@@ -573,7 +563,7 @@ class MessageHandler {
     private async getMessageReactions(messageId: string): Promise < Map < string, number > > {
         const message = await Message.findById(messageId);
         if (!message) {
-            this.logger.error({ event: 'getReactions' }, `Message ${messageId} not found`);
+            logger.error({ event: 'getReactions' }, `Message ${messageId} not found`);
             return null;
         }
 

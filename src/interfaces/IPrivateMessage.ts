@@ -9,5 +9,9 @@ export default interface IPrivateMessage extends Document {
     receiver: IUser;
     message: IMessage;
     reactions: any[];
-    replyTo: any;
+    mentions: IUser[];
+    replyTo?: any;
+    lastAccesedAt: number;
+    archived: boolean;
+    archivedAt?: number;
 }

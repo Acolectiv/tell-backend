@@ -12,4 +12,7 @@ export default interface IMessage extends Document {
     reactions: any[];
     mentions: IUser[];
     replyTo?: any;
+    lastAccesedAt: number;
+    archived: boolean;
+    archivedAt?: number;
 }
