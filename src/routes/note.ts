@@ -1,72 +1,27 @@
-import express, { Request, Response } from "express";
+import express from "express";
 
-import CommentResult from "../typings/CommentResult";
-import IUserRequest from "../interfaces/IUserRequest";
 import auth from "../middleware/auth";
 
-const router = express.Router();
+import IRoute from "../interfaces/IRoute";
 
-import NotesManager from "../managers/NotesManager";
+import * as note from "../controllers/note.controller";
 
-router.post('/create', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { text } = req.body;
+export default class NoteRoute implements IRoute {
+    public path: string;
+    public router: express.Router;
 
-        if(!text)
-            return res.status(401).send({ success: false, error: "noText" });
+    constructor() {
+        this.path = '/api/note';
 
-        const { result, msg, note } = await NotesManager.getInstance().postNote(req.userId, text);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else res.json({ success: true, note });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
+        this.router = express.Router();
 
-router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { noteId } = req.body;
+        this.initializeRoute();
+    }
 
-        if(!noteId)
-            return res.status(401).send({ success: false, error: "noNoteId" });
-
-        const { result, msg, note } = await NotesManager.getInstance().deleteNote(req.userId, noteId);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else res.json({ success: true, note });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.get('/fetch/:noteId', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { noteId } = req.params;
-
-        if(!noteId)
-            return res.status(401).send({ success: false, error: "noNoteId" });
-
-        const { result, msg, note } = await NotesManager.getInstance().fetchNote(noteId);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else res.json({ success: true, note });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.post('/edit', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { noteId, text } = req.body;
-
-        if(!noteId || !text)
-            return res.status(401).send({ success: false, error: "noNoteIdOrText" });
-
-        const { result, msg, note } = await NotesManager.getInstance().editNote(req.userId, noteId, text);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else res.json({ success: true, note });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-const noteRoute = router;
-export default noteRoute;
+    initializeRoute(): void {
+        this.router.post('/create', auth, note.createNote);
+        this.router.post('/delete', auth, note.deleteNote);
+        this.router.get('/fetch/:noteId', auth, note.fetchNote);
+        this.router.post('/edit', auth, note.editNote);
+    }
+}

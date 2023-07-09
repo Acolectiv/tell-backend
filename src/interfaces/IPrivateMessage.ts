@@ -9,4 +9,5 @@ export default interface IPrivateMessage extends Document {
     receiver: IUser;
     message: IMessage;
     reactions: any[];
+    replyTo: any;
 }

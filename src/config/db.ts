@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
+import logger from "../utils/logger";
+
 import "../models";
-console.log(`[Models] -> Models loaded.`);
+logger.debug({ event: "database/models" }, 'models loaded');
 
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGO_URI);
@@ -9,7 +11,7 @@ mongoose.connect(process.env.MONGO_URI);
 const db = mongoose.connection;
 
 db.once("open", () => {
-    console.log("[Database] -> Connection established.");
+    logger.debug({ event: "database" }, 'connection established');
 });
 
 db.once("error", error => {

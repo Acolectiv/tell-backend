@@ -1,27 +1,24 @@
-import express, { Request, Response } from "express";
+import express from "express";
 
-import IUserRequest from "../interfaces/IUserRequest";
 import auth from "../middleware/auth";
 
-const router = express.Router();
+import IRoute from "../interfaces/IRoute";
 
-import FollowManager from "../managers/FollowManager";
+import * as unfollow from "../controllers/unfollow.controller";
 
-router.post('/', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { unfollowedId } = req.body;
+export default class UnfollowRoute implements IRoute {
+    public path: string;
+    public router: express.Router;
 
-        if(!unfollowedId)
-            return res.status(401).send({ success: false, error: "noFollowerOrFollowed" });
+    constructor() {
+        this.path = '/api/unfollow';
 
-        const followRes = await FollowManager.getInstance().unfollowUser(req.userId, unfollowedId);
-        if(followRes.result === 'error') return res.status(401).send({ success: false, error: followRes.msg });
+        this.router = express.Router();
 
-        return res.send({ success: true, unfollower: followRes.unfollower, unfollowed: followRes.unfollowed });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
+        this.initializeRoute();
+    }
 
-const unfollowRoute = router;
-export default unfollowRoute;
+    initializeRoute(): void {
+        this.router.post('/', auth, unfollow.unfollowUser);
+    }
+}

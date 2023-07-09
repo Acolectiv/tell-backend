@@ -1,142 +1,31 @@
-import express, { Request, Response } from "express";
-
-import IUserRequest from "../interfaces/IUserRequest";
-import TellResult from "../typings/TellResult";
-
-const router = express.Router();
-
-import UserManager from "../managers/UserManager";
-import TellManager from "../managers/TellManager";
+import express from "express";
 
 import auth from "../middleware/auth";
 
-router.post('/create', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { text, title } = req.body;
+import IRoute from "../interfaces/IRoute";
 
-        if(!text || !title) return res.status(404).send({ success: false, error: "noTextOrTitle" });
+import * as tells from "../controllers/tells.controller";
 
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
+export default class TellRoute implements IRoute {
+    public path: string;
+    public router: express.Router;
 
-        const tellRes: TellResult = await TellManager.getInstance().postTell(user, text, title);
-        if(tellRes.result == "success") return res.json({ success: true, tell: tellRes.tell });
-        else return res.status(401).send({ success: false, error: tellRes.msg });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
+    constructor() {
+        this.path = '/api/notification';
 
-router.post('/delete', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { tellId } = req.body;
+        this.router = express.Router();
 
-        if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
-
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
-
-        const tellRes: TellResult = await TellManager.getInstance().deleteTell(user, tellId);
-        if(tellRes.result == "success") return res.json({ success: true, tells: tellRes.tell });
-        else return res.status(401).send({ success: false, error: tellRes.msg });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.post('/like/:tellId', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { tellId } = req.params;
-
-        if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
-
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
-
-        const tellRes: TellResult = await TellManager.getInstance().likeTell(user, tellId);
-        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
-        else return res.status(200).json({ success: true, tell: tellRes.tell });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.post('/dislike/:tellId', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { tellId } = req.params;
-
-        if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
-
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
-
-        const tellRes: TellResult = await TellManager.getInstance().dislikeTell(user, tellId);
-        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
-        else return res.status(200).json({ success: true, tell: tellRes.tell });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.post('/removeLikeOrDislike/:tellId', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { tellId } = req.params;
-
-        if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
-
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
-
-        const tellRes: TellResult = await TellManager.getInstance().removeLikeOrDislikeTell(user, tellId);
-        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
-        else return res.status(200).json({ success: true, tell: tellRes.tell });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.get('/fetch/:tellId', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { tellId } = req.params;
-
-        if(!tellId) return res.status(404).send({ success: false, error: "noTellId" });
-
-        let { result, msg, user } = await UserManager.getInstance().fetchUser(req.userId, req.userId);
-        if(result == "error") return res.status(401).send({ success: false, msg });
-
-        const tellRes: TellResult = await TellManager.getInstance().fetchTell(tellId, { viewer: req.userId });
-        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
-        else return res.status(200).json({ success: true, tell: tellRes.tell });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.get('/fetchAll/:userId:limit', auth, async (req: IUserRequest, res: Response) => {
-    try {
-        const { userId } = req.params;
-        const { limit } = req.body;
-
-        if(!userId) return res.status(404).send({ success: false, error: "noAuthor" });
-
-        const tellRes: TellResult = await TellManager.getInstance().fetchUserTells(req.userId, parseInt(limit));
-        if(tellRes.result === "error") return res.status(400).json({ success: false, msg: tellRes.msg });
-        else return res.status(200).json({ success: true, tell: tellRes.tell });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    };
-});
-
-router.get('/filter', async (req: IUserRequest, res: Response) => {
-    try {
-        let user = await TellManager.getInstance().filterTell(req.query.filter, req.query.sort);
-        if(!user) return res.status(401).send({ sucess: false, error: "noTell" });
-
-        return res.send({ success: true, user: user });
-    } catch (e) {
-        res.status(500).send({ success: false, error: e });
+        this.initializeRoute();
     }
-});
 
-const tellsRoute = router;
-export default tellsRoute;
+    initializeRoute(): void {
+        this.router.post('/create', auth, tells.createTell);
+        this.router.post('/delete', auth, tells.deleteTell);
+        this.router.post('/like/:tellId', auth, tells.likeTell);
+        this.router.post('/dislike/:tellid', auth, tells.dislikeTell);
+        this.router.post('/removeLikeOrDislike', auth, tells.removeLikeOrDislikeTell);
+        this.router.post('/fetch/:tellId', auth, tells.fetchTell);
+        this.router.post('/fetchAll/:userId:limit', auth, tells.fetchAllTells);
+        this.router.post('/filter', auth, tells.filterTells);
+    }
+}

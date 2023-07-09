@@ -2,6 +2,12 @@ import { Socket, Server } from "socket.io";
 
 import { getStreams } from "../config/bunyan";
 
+// @ts-ignore
+import ss from "socket.io-stream";
+
+import path from "path";
+import fs from "fs";
+
 import {
     model
 } from "mongoose";
@@ -93,7 +99,7 @@ class MessageHandler {
             message: string,
             room ? : string,
             reactions: Array < string > | [],
-            replyTo?: string
+            replyTo?: string | null
         }) => {
             const {
                 userId,
@@ -119,7 +125,7 @@ class MessageHandler {
                     replyTo: replyTo || null
                 });
 
-                await this.storeMessage(user._id, null, message, room, reactions, replyTo || null);
+                await this.storeMessage(user._id, null, message, room, reactions, replyTo);
 
                 this.logger.debug({ event: 'handleMessage' }, `Message sent to room: ${room}`);
             } else {
@@ -136,39 +142,40 @@ class MessageHandler {
 
     public handlePrivateMessage(socket: Socket): void {
         socket.on('privateMessage', async (data: {
-            senderId: string,
             receiverId: string,
             message: string,
-            reactions: Array < string > | [],
-            replyTo?: string
+            reactions?: Array < string > | [],
+            replyTo?: string | null
         }) => {
             const {
-                senderId,
                 receiverId,
                 message,
                 reactions,
                 replyTo
             } = data;
 
+            let senderId = (socket as any).userId;
+
             const sender = await User.findById(senderId);
 
             if (!sender) {
-                console.log(`Sender not found with _id: ${senderId}`);
+                this.logger.debug({ event: 'privateMessage' }, `sender not found with _id: ${senderId}`);
                 return;
             }
 
             const receiver = await User.findById(receiverId);
 
             if (!receiver) {
-                console.log(`Receiver not found with _id: ${receiverId}`);
+                this.logger.debug({ event: 'privateMessage' }, `receiver not found with _id: ${receiverId}`);
                 return;
             }
 
-            await this.storeMessage(sender.username, receiver.username, message, null, reactions, replyTo || null);
+            await this.storeMessage(sender._id, receiver._id, message, null, reactions, replyTo);
 
-            if (receiver.socketId && this.isOnline(receiver.socektId)) {
+            if (receiver.socketId) {
                 this.io.to(receiver.socketId).emit('privateMessage', {
-                    sender: sender.username,
+                    senderId: sender._id,
+                    senderUsername: sender.username,
                     message,
                     reactions
                 });
@@ -191,12 +198,17 @@ class MessageHandler {
                 reactions
             } = data;
 
+            if(!groupId || !message) {
+                this.logger.debug({ event: 'groupMessage' }, `groupId not found with _id: ${groupId || null}`);
+                return;
+            }
+
             const group = await Group.findById(groupId);
 
-            const senderId = (socket as any).userId
+            const senderId = (socket as any).userId;
 
-            if (!group) {
-                console.log(`Group not found with _id: ${groupId}`);
+            if(!group) {
+                this.logger.debug({ event: 'groupMessage' }, `group not found with _id: ${groupId || null}`);
                 return;
             }
 
@@ -243,6 +255,11 @@ class MessageHandler {
                 receiverId
             } = data;
 
+            if(!senderId || !receiverId) {
+                this.logger.debug({ event: 'fetchMessagesBetweenUsers' }, `pms not found with sender ${senderId} and receiver ${receiverId}`);
+                return;
+            }
+
             const messages = await PrivateMessage.find({
                 $or: [{
                         senderId,
@@ -281,6 +298,11 @@ class MessageHandler {
                 messageId
             } = data;
 
+            if(!messageId) {
+                this.logger.debug({ event: 'deleteMessage' }, `message not found with _id ${messageId || null}`);
+                return;
+            }
+
             try {
                 const message = await PrivateMessage.findByIdAndRemove(messageId).exec();
                 if (message) {
@@ -304,6 +326,11 @@ class MessageHandler {
                 messageId,
                 receiverId
             } = data;
+
+            if(!messageId || !receiverId) {
+                this.logger.debug({ event: 'seenMessage' }, `message not found with _id ${messageId || null} or receiver not found with _id ${receiverId || null}`);
+                return;
+            }
 
             try {
                 const message = await PrivateMessage.findByIdAndUpdate(
@@ -340,6 +367,11 @@ class MessageHandler {
                 newMessageContent
             } = data;
 
+            if(!messageId || !newMessageContent) {
+                this.logger.debug({ event: 'updateMessageContent' }, `message not found with _id ${messageId || null} or newMessageContent not available`);
+                return;
+            }
+
             try {
                 const message = await Message.findByIdAndUpdate(messageId, {
                     message: newMessageContent
@@ -365,6 +397,11 @@ class MessageHandler {
             const {
                 receiverId
             } = data;
+
+            if(!receiverId) {
+                this.logger.debug({ event: 'getUnreadMessageCount' }, `receiver with _id ${receiverId || null} not found`);
+                return;
+            }
 
             try {
                 const count = await Message.countDocuments({

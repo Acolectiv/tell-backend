@@ -9,6 +9,5 @@ export default interface ITell extends Document {
     title: string,
     comments: Array<any>,
     views: Array<any>,
-    in: string,
-    topicText: string
+    in: string
 }
