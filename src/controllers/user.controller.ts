@@ -3,8 +3,12 @@ import express, { Request, Response } from "express";
 import IUserRequest from "../interfaces/IUserRequest";
 import UserResult from "../typings/UserResult";
 
+// @ts-ignore
+import { Store } from "memkvstore";
 
 import UserManager from "../managers/UserManager";
+
+let store = new Store();
 
 export async function createUser(req: IUserRequest, res: Response) {
     try {
@@ -25,6 +29,9 @@ export async function createUser(req: IUserRequest, res: Response) {
 export async function loginUser(req: IUserRequest, res: Response) {
     try {
         const { username, password } = req.body;
+
+        await store.set("key1", "value1");
+        console.log(await store.get("key1"));
 
         if(!username || !password)
             return res.status(401).send({ success: false, error: "noUsernameOrPassword" });
