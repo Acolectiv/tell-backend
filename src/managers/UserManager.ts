@@ -7,7 +7,7 @@ import { compare } from "bcrypt";
 import IUserPayload from "../interfaces/IUserPayload";
 import UserResult from "../typings/UserResult";
 import IUser from "../interfaces/IUser";
-import removeElementById from "../utils/removeElemntById";
+import removeElementById from "../utils/removeElementById";
 
 const User = model("User");
 

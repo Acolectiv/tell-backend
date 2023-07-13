@@ -2,7 +2,7 @@ import { model } from "mongoose";
 
 import NotificationTypes from "../typings/NotificationTypes";
 import removeArrayElementById from "../utils/removeArrayElementById";
-import removeElementById from "../utils/removeElemntById";
+import removeElementById from "../utils/removeElementById";
 import UserManager from "./UserManager";
 
 const Notification = model("Notification");

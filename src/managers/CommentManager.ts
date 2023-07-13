@@ -1,5 +1,5 @@
 import { model } from "mongoose";
-import removeElementById from "../utils/removeElemntById";
+import removeElementById from "../utils/removeElementById";
 
 const Comment = model("Comment");
 const Tell = model("Tell");

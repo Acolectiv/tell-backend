@@ -1,4 +1,4 @@
-import removeElementById from "../utils/removeElemntById";
+import removeElementById from "../utils/removeElementById";
 import UserManager from "./UserManager";
 
 class FollowManager {

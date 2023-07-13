@@ -33,7 +33,7 @@
     "jsonwebtoken": "^9.0.0",
     "lda": "^0.2.0",
     "lda-topic-model": "^1.1.0",
-    "memkvstore": "^1.1.0",
+    "memkvstore": "^1.2.0",
     "moment": "^2.29.4",
     "mongoose": "^7.0.1",
     "multer-gridfs-storage": "^5.0.2",
