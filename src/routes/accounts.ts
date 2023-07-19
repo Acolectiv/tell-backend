@@ -22,8 +22,6 @@ export default class AccountsRoute implements IRoute {
         this.router.get('/fetch/:userId', auth, user.fetchUser);
         this.router.post('/login', user.loginUser);
         this.router.post('/create', user.createUser);
-        this.router.post('/block/:userId', auth, user.blockUser);
-        this.router.post('/unblock/:userId', auth, user.unblockUser);
         this.router.get('/filter', auth, user.filter);
     }
 }

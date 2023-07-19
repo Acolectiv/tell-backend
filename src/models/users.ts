@@ -14,28 +14,7 @@ const UserSchema = new Schema<IUser>({
     email: String,
     password: String,
     createdAt: Number,
-    tells: [{ type: SchemaTypes.ObjectId, ref: "Tell" }],
-    following: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    followers: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    blocked: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    notes: { type: SchemaTypes.ObjectId, ref: "UserNote" },
-    notifications: [{ type: SchemaTypes.ObjectId, ref: "Notification" }],
-    communities: [{ type: SchemaTypes.ObjectId, ref: "Community" }],
-    isOwner: { type: Boolean, default: false },
-    permissions: {
-        banUser: { type: Boolean, default: false },
-        deleteTell: { type: Boolean, default: false },
-        seeUsers: { type: Boolean, default: false },
-        adminPanel: { type: Boolean, default: false },
-        seePastSanctions: { type: Boolean, default: false }
-    },
-    gcs: [{ type: SchemaTypes.ObjectId, ref: "GroupChat" }],
-    interests: [[ String ]],
-    socketId: { type: String, default: "" },
-    isOnline: { type: Boolean, default: false },
-    friends: [{ type: SchemaTypes.ObjectId, ref: "User" }],
-    friendRequests: [{ type: SchemaTypes.ObjectId, ref: "FriendRequest" }],
-    rooms: [{ type: SchemaTypes.ObjectId, ref: "Group" }]
+    userType: { type: String, default: "Regular" }
 });
 
 UserSchema.pre("save", async function(next: NextFunction) {

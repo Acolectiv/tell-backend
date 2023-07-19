@@ -51,32 +51,6 @@ export async function fetchUser(req: IUserRequest, res: Response) {
     }
 }
 
-export async function blockUser(req: IUserRequest, res: Response) {
-    try {
-        let { userId } = req.params;
-        if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
-
-        let { result, blocker, blocked, msg } = await UserManager.getInstance().blockUser(req.userId, userId);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else return res.json({ success: true, blocker, blocked });
-    } catch(e) {
-        res.status(500).send({ success: false, error: e });
-    }
-}
-
-export async function unblockUser(req: IUserRequest, res: Response) {
-    try {
-        let { userId } = req.params;
-        if(!userId) return res.status(401).send({ success: false, error: "noUserId" });
-
-        let { result, unblocker, unblocked, msg } = await UserManager.getInstance().unblockUser(req.userId, userId);
-        if(result == "error") return res.status(400).json({ success: false, msg });
-        else return res.json({ success: true, unblocker, unblocked });
-    } catch (e) {
-        res.status(500).send({ success: false, error: e });
-    }
-}
-
 export async function filter(req: IUserRequest, res: Response) {
     try {
         let user = await UserManager.getInstance().filterUser(req.query.filter, req.query.sort);
