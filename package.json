@@ -42,7 +42,7 @@
     "socket.io": "^4.7.1",
     "socket.io-stream": "^0.9.1",
     "start-server-and-test": "^2.0.0",
-    "supertest": "^6.3.3",
+    "supertest": "^7.0.0",
     "ts-jest": "^29.0.5",
     "ws": "^8.13.0",
     "xss-clean": "^0.1.4"
