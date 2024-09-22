@@ -39,7 +39,7 @@
     "multer-gridfs-storage": "^5.0.2",
     "natural": "^6.2.0",
     "prom-client": "^14.2.0",
-    "socket.io": "^4.7.1",
+    "socket.io": "^4.8.0",
     "socket.io-stream": "^0.9.1",
     "start-server-and-test": "^2.0.0",
     "supertest": "^6.3.3",
