@@ -16,7 +16,7 @@
     "@types/node": "^10.17.60",
     "@types/supertest": "^2.0.12",
     "@types/ws": "^8.5.4",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^6.0.0",
     "body-parser": "^1.20.2",
     "bunyan": "^1.8.15",
     "compression": "^1.7.4",
@@ -42,7 +42,7 @@
     "socket.io": "^4.7.1",
     "socket.io-stream": "^0.9.1",
     "start-server-and-test": "^2.0.0",
-    "supertest": "^6.3.3",
+    "supertest": "^7.1.1",
     "ts-jest": "^29.0.5",
     "ws": "^8.13.0",
     "xss-clean": "^0.1.4"
